@@ -6,6 +6,6 @@
   width: 25%;
   min-width: 292px;
   pointer-events: none;
-  /* z-index: 1; */
+  z-index: 1; 
   color: white;
 }

@@ -554,14 +554,11 @@ const onRender = scene => {
 
 
 export default () => {
-  babylonLink = useRef(null);
+ // babylonLink = useRef(null);
 
   return (
-    <>
+
       <BabylonScene antialias onSceneReady={onSceneReady} onRender={onRender} id='render-canvas' />
-      <a ref={babylonLink} target="_blank" rel="noopener noreferrer" href="https://www.babylonjs.com/">
-        Babylon documentation
-      </a>
-    </>
+   
   )
 }
