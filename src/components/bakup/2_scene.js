@@ -27,12 +27,6 @@ import {StackPanel } from  '@babylonjs/gui/2D/controls/stackPanel'
 //import { Button } from '@babylonjs/gui/2D/controls/button'
 import { Image } from '@babylonjs/gui/2D/controls/image'
 
-import { Ray } from '@babylonjs/core/Culling/ray'
-import { RayHelper } from '@babylonjs/core/Debug/rayHelper'
-import '@babylonjs/core/Debug/rayHelper'
-import {Matrix} from '@babylonjs/core'
-
-
 let box;
 let babylonLink;
 
@@ -239,46 +233,6 @@ const panel = new StackPanel();
     // }));
 
 
-
-    // Ground
-    // ===========================================================
-    const subdivisions = 50;
-    const width = 150;
-    const height = 150;
-
-
-    const options = {width: width, height: height, subdivisions: subdivisions, minHeight: 0 ,  maxHeight: 6};
-    const ground = MeshBuilder.CreateGroundFromHeightMap("ground", "https://pbs.twimg.com/media/CQgYtX4UEAAaRBG?format=png", options, scene);
-
-    const groundMaterial = new StandardMaterial("ground", scene);
-    //groundMaterial.emissiveColor = new Color3(1, 1, 0);
-    groundMaterial.specularColor = new Color3(0.91, 0.56, 0.56);
-    //  groundMaterial.diffuseTexture = new Texture("https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Macadam-1.JPG/800px-Macadam-1.JPG", scene);
-    // groundMaterial.diffuseTexture.uScale = 1;
-    // groundMaterial.diffuseTexture.vScale = 1;
-    groundMaterial.specularColor = new Color3(1, 1, 0);
-    ground.material = groundMaterial;
-    groundMaterial.freeze();
-    //groundMaterial.wireframe = true;
-
-    
-    var localMeshDirection = new Vector3(0, -1, 0);
-    var localMeshOrigin = new Vector3(0, 0, .4);
-    var length = 10;
-
-     //rayHelper.attachToMesh(dude, localMeshDirection, localMeshOrigin, length);
-    // rayHelper.show(scene);
-
-    //let ray = new Ray()
-    //ray = ray(new Vector3(dude.position.x, ground.getBoundingInfo().boundingBox.maximumWorld.y + 1, dude.position.z), new Vector3(0, -1, 0)); // Direction
-    //var rayHelper = new RayHelper(ray);
-    
-              
-//  ground.getWorldMatrix().invertToRef(worldInverse);
-//   ray = BABYLON.Ray.Transform(ray, worldInverse)  
-//  var pickInfoDude = ground.intersects(ray);
-
- // console.log(ground.getBoundingInfo().boundingBox.maximumWorld.y + 1)
 ///////////////////// fin joystick
   SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/julien210/thion/julien210-assets/", "13.babylon", scene, function (newMeshes, particleSystems, skeletons) {
     //  const skeleton = skeletons[0];
@@ -354,11 +308,12 @@ const panel = new StackPanel();
   
     
     const  dude = newMeshes[0];
-      dude.position.z = -30;
-      //  dude.backFaceCulling = false;
-      //  dude.rotation.y = (2 * Math.PI) ;
+    dude.position.z = -30;
+    //  dude.backFaceCulling = false;
+    //  dude.rotation.y = (2 * Math.PI) ;
       dude.scaling = new Vector3(.2, .2, .2);       // pour  un element d un seul mesh ou  avec parent ?
-    const skeleton  =   skeletons[0];   
+    const skeleton  =   skeletons[0];
+    
       skeleton.animationPropertiesOverride = new AnimationPropertiesOverride();
       skeleton.animationPropertiesOverride.enableBlending = true;
       skeleton.animationPropertiesOverride.blendingSpeed = 0.05;
@@ -376,23 +331,9 @@ const panel = new StackPanel();
     const pickAnim = scene.beginWeightedAnimation(skeleton, fruitRange.from, fruitRange.to, 0, true, 1);
 
 
-
     scene.onBeforeRenderObservable.add(()=>{
-
-      
-      let ray = new Ray(new Vector3(dude.position.x, ground.getBoundingInfo().boundingBox.maximumWorld.y + 1, dude.position.z), new Vector3(0, -1, 0)); // Direction
-      const  worldInverse = new Matrix();
-      ground.getWorldMatrix().invertToRef(worldInverse);
-      ray = Ray.Transform(ray, worldInverse);
-      console.log (ray)
-      let pickInfoDude = ground.intersects(ray);
-          
-        if (pickInfoDude.hit) {
-            dude.position.y = pickInfoDude.pickedPoint.y + 0.02;       
-        };
-              
       camera.setTarget(newMeshes[0].position);
-     // console.log(dude.position.y)
+      console.log(dude.position.z)
         let keydown = false;
         let walking = false;
         let  running = false;
@@ -485,22 +426,31 @@ const panel = new StackPanel();
 scene.collisionsEnabled = true;
 scene.gravity = new Vector3(0, -0.9, 0);
 
-dude.lookAt(box.position);
-
 //////////////////////////////////////////////////////////////////// TERRAIN //////////////////////////////////////
 
+// Ground
+    // ===========================================================
+    const subdivisions = 50;
+    const width = 50;
+    const height = 50;
 
-              
-//  ground.getWorldMatrix().invertToRef(worldInverse);
-//   ray = BABYLON.Ray.Transform(ray, worldInverse)  
-//  var pickInfoDude = ground.intersects(ray);
 
- // console.log(ground.getBoundingInfo().boundingBox.maximumWorld.y + 1)
+    const options = {width: width, height: height, subdivisions: subdivisions, minHeight: 0 ,  maxHeight: 30};
+    const ground = MeshBuilder.CreateGroundFromHeightMap("ground", "http://jerome.bousquie.fr/BJS/images/heightmap.png", options, scene);
 
-    const ground1 =  GroundBuilder.CreateGround("ground", {width: 150, height: 150}, scene);
-    ground1.material =  groundMaterial;
-  
-})    // finsceneLoader   
+    const groundMaterial = new StandardMaterial("ground", scene);
+    groundMaterial.emissiveColor = new Color3(1, 1, 0);
+  //  groundMaterial.diffuseTexture = new Texture("https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Macadam-1.JPG/800px-Macadam-1.JPG", scene);
+    // groundMaterial.diffuseTexture.uScale = 1;
+    // groundMaterial.diffuseTexture.vScale = 1;
+    // groundMaterial.specularColor = new Color3(1, 1, 0);
+    ground.material = groundMaterial;
+    groundMaterial.freeze();
+    //groundMaterial.wireframe = true;
+
+  const ground1 =  GroundBuilder.CreateGround("ground", {width: 150, height: 150}, scene);
+  ground1.material =  groundMaterial;
+  })    // finsceneLoader   
 
   // Register click event on box mesh
   box.actionManager = new ActionManager(scene);
@@ -524,31 +474,6 @@ const onRender = scene => {
     const rpm = 10;
     box.rotation.y += ((rpm / 60) * Math.PI * 2 * (deltaTimeInMillis / 1000));
   }
-
-
-  
-  
-  
-  
-  
-  
-  
-  // /// position  par rapport au ground
-  // var ray = new BABYLON.Ray(new BABYLON.Vector3(dude.position.x, ground.getBoundingInfo().boundingBox.maximumWorld.y + 1, dude.position.z), new BABYLON.Vector3(0, -1, 0)); // Direction
-  // var worldInverse = new BABYLON.Matrix();
-            
-  // ground.getWorldMatrix().invertToRef(worldInverse);
-  // ray = BABYLON.Ray.Transform(ray, worldInverse);
-  
-
-  // var pickInfoDude = ground.intersects(ray);
-    
-  // if (pickInfoDude.hit) {
-  //     dude.position.y = pickInfoDude.pickedPoint.y + 0.02;       
-  // };
-        
-  // // console.log(dude.position.x,dude.position.y,dude.position.z, )
-
   
 }
 

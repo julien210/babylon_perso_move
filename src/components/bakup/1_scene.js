@@ -2,72 +2,46 @@ import React, { useRef } from 'react';
 import { ActionManager } from '@babylonjs/core/Actions/actionManager';
 import { ExecuteCodeAction } from '@babylonjs/core/Actions';
 import { HemisphericLight } from '@babylonjs/core/Lights/hemisphericLight';
-import { DirectionalLight } from '@babylonjs/core/Lights/directionalLight'
 import { FreeCamera } from '@babylonjs/core/Cameras/freeCamera';
-import { ArcRotateCamera } from '@babylonjs/core/Cameras/arcRotateCamera'
 
 import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder';
-import { GroundBuilder } from '@babylonjs/core/Meshes/Builders/groundBuilder'
-//import '@babylonjs/core/Meshes/Builders/groundBuilder'
 import BabylonScene from 'babylonjs-hook';
 import './scene.css';
+
+
 
 import { SceneLoader } from "@babylonjs/core/Loading/sceneLoader";
 import {AnimationPropertiesOverride} from '@babylonjs/core/Animations/animationPropertiesOverride'
 import { Color3, Vector3 } from '@babylonjs/core/Maths/math'
-//import {ShadowGenerator} from  '@babylonjs/core/Lights/Shadows/shadowGenerator'
+import {ShadowGenerator} from  '@babylonjs/core/Lights/Shadows/shadowGenerator'
 import {Ellipse} from '@babylonjs/gui/2D/controls/ellipse'
 import {Control} from '@babylonjs/gui/2D/controls/control'
-
-import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial"
-import { Texture } from "@babylonjs/core/Materials/Textures/texture"
 import { AdvancedDynamicTexture } from '@babylonjs/gui/2D/advancedDynamicTexture';
 //import {GUI3DManager} from '@babylonjs/gui/3D/gui3DManager'
 import {StackPanel } from  '@babylonjs/gui/2D/controls/stackPanel'
 //import { Button } from '@babylonjs/gui/2D/controls/button'
 import { Image } from '@babylonjs/gui/2D/controls/image'
 
-import { Ray } from '@babylonjs/core/Culling/ray'
-import { RayHelper } from '@babylonjs/core/Debug/rayHelper'
-import '@babylonjs/core/Debug/rayHelper'
-import {Matrix} from '@babylonjs/core'
-
-
 let box;
 let babylonLink;
 
-
-
 const onSceneReady = scene => {
   // This creates and positions a free camera (non-mesh)
-  //var camera = new FreeCamera("camera1", new Vector3(0, 5, -10), scene);
+  var camera = new FreeCamera("camera1", new Vector3(0, 5, -10), scene);
   // This targets the camera to scene origin
-  // camera.setTarget(Vector3.Zero());
-  
-  var camera = new ArcRotateCamera("Camera", 0, 0, 0, new Vector3(0, 1, -1), scene);
-  camera.setPosition(new Vector3(2, 4, -40));
-  
-  
- 
+  camera.setTarget(Vector3.Zero());
   const canvas = scene.getEngine().getRenderingCanvas();
   // This attaches the camera to the canvas
   camera.attachControl(canvas, true);
 
   // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
-  var light = new HemisphericLight("light", new Vector3(1, 1, 0), scene);
-  //var light1 = new DirectionalLight("DirectionalLight", new Vector3(-0.5, -1, 0), scene);
+  var light = new HemisphericLight("light", new Vector3(0, 1, 0), scene);
   // Default intensity is 1. Let's dim the light a small amount
   light.intensity = 0.7;
   // Our built-in 'box' shape.
-  box = MeshBuilder.CreateBox("box", {size: 1}, scene);
+  box = MeshBuilder.CreateBox("box", {size: 3}, scene);
   // Move the box upward 1/2 its height
   box.position.x = -4;
-  box.position.y = 2;
-
- 
- 
-
-
 
   /////////////////// joystick 
   
@@ -239,46 +213,6 @@ const panel = new StackPanel();
     // }));
 
 
-
-    // Ground
-    // ===========================================================
-    const subdivisions = 50;
-    const width = 150;
-    const height = 150;
-
-
-    const options = {width: width, height: height, subdivisions: subdivisions, minHeight: 0 ,  maxHeight: 6};
-    const ground = MeshBuilder.CreateGroundFromHeightMap("ground", "https://pbs.twimg.com/media/CQgYtX4UEAAaRBG?format=png", options, scene);
-
-    const groundMaterial = new StandardMaterial("ground", scene);
-    //groundMaterial.emissiveColor = new Color3(1, 1, 0);
-    groundMaterial.specularColor = new Color3(0.91, 0.56, 0.56);
-    //  groundMaterial.diffuseTexture = new Texture("https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Macadam-1.JPG/800px-Macadam-1.JPG", scene);
-    // groundMaterial.diffuseTexture.uScale = 1;
-    // groundMaterial.diffuseTexture.vScale = 1;
-    groundMaterial.specularColor = new Color3(1, 1, 0);
-    ground.material = groundMaterial;
-    groundMaterial.freeze();
-    //groundMaterial.wireframe = true;
-
-    
-    var localMeshDirection = new Vector3(0, -1, 0);
-    var localMeshOrigin = new Vector3(0, 0, .4);
-    var length = 10;
-
-     //rayHelper.attachToMesh(dude, localMeshDirection, localMeshOrigin, length);
-    // rayHelper.show(scene);
-
-    //let ray = new Ray()
-    //ray = ray(new Vector3(dude.position.x, ground.getBoundingInfo().boundingBox.maximumWorld.y + 1, dude.position.z), new Vector3(0, -1, 0)); // Direction
-    //var rayHelper = new RayHelper(ray);
-    
-              
-//  ground.getWorldMatrix().invertToRef(worldInverse);
-//   ray = BABYLON.Ray.Transform(ray, worldInverse)  
-//  var pickInfoDude = ground.intersects(ray);
-
- // console.log(ground.getBoundingInfo().boundingBox.maximumWorld.y + 1)
 ///////////////////// fin joystick
   SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/julien210/thion/julien210-assets/", "13.babylon", scene, function (newMeshes, particleSystems, skeletons) {
     //  const skeleton = skeletons[0];
@@ -354,11 +288,11 @@ const panel = new StackPanel();
   
     
     const  dude = newMeshes[0];
-      dude.position.z = -30;
-      //  dude.backFaceCulling = false;
-      //  dude.rotation.y = (2 * Math.PI) ;
-      dude.scaling = new Vector3(.2, .2, .2);       // pour  un element d un seul mesh ou  avec parent ?
-    const skeleton  =   skeletons[0];   
+      dude.backFaceCulling = false;
+      dude.rotation.y = (2 * Math.PI) ;
+      dude.scaling = new Vector3(.5, .5, .5);       // pour  un element d un seul mesh ou  avec parent ?
+    const skeleton  =   skeletons[0];
+    
       skeleton.animationPropertiesOverride = new AnimationPropertiesOverride();
       skeleton.animationPropertiesOverride.enableBlending = true;
       skeleton.animationPropertiesOverride.blendingSpeed = 0.05;
@@ -376,23 +310,14 @@ const panel = new StackPanel();
     const pickAnim = scene.beginWeightedAnimation(skeleton, fruitRange.from, fruitRange.to, 0, true, 1);
 
 
+    const  helper = scene.createDefaultEnvironment({
+           enableGroundShadow: true
+       });
+      helper.setMainColor(Color3.Gray());
+      helper.ground.position.y += 0.01;
 
     scene.onBeforeRenderObservable.add(()=>{
-
-      
-      let ray = new Ray(new Vector3(dude.position.x, ground.getBoundingInfo().boundingBox.maximumWorld.y + 1, dude.position.z), new Vector3(0, -1, 0)); // Direction
-      const  worldInverse = new Matrix();
-      ground.getWorldMatrix().invertToRef(worldInverse);
-      ray = Ray.Transform(ray, worldInverse);
-      console.log (ray)
-      let pickInfoDude = ground.intersects(ray);
-          
-        if (pickInfoDude.hit) {
-            dude.position.y = pickInfoDude.pickedPoint.y + 0.02;       
-        };
-              
       camera.setTarget(newMeshes[0].position);
-     // console.log(dude.position.y)
         let keydown = false;
         let walking = false;
         let  running = false;
@@ -478,29 +403,16 @@ const panel = new StackPanel();
 
       }
     /// fibn de keypressed 
-  })          
+  })
+        
+                    
         
 //////////////////////////////////////////////////////////////////// LOGIQUE DE JEU //////////////////////////////////////
- 
-scene.collisionsEnabled = true;
-scene.gravity = new Vector3(0, -0.9, 0);
-
-dude.lookAt(box.position);
-
-//////////////////////////////////////////////////////////////////// TERRAIN //////////////////////////////////////
 
 
-              
-//  ground.getWorldMatrix().invertToRef(worldInverse);
-//   ray = BABYLON.Ray.Transform(ray, worldInverse)  
-//  var pickInfoDude = ground.intersects(ray);
-
- // console.log(ground.getBoundingInfo().boundingBox.maximumWorld.y + 1)
-
-    const ground1 =  GroundBuilder.CreateGround("ground", {width: 150, height: 150}, scene);
-    ground1.material =  groundMaterial;
   
-})    // finsceneLoader   
+
+  })    // finsceneLoader   
 
   // Register click event on box mesh
   box.actionManager = new ActionManager(scene);
@@ -512,7 +424,9 @@ dude.lookAt(box.position);
         }
     )
   );
-  
+  // Our built-in 'ground' shape.
+  MeshBuilder.CreateGround("ground", {width: 6, height: 6}, scene);
+
 }
  
 /**
@@ -524,32 +438,6 @@ const onRender = scene => {
     const rpm = 10;
     box.rotation.y += ((rpm / 60) * Math.PI * 2 * (deltaTimeInMillis / 1000));
   }
-
-
-  
-  
-  
-  
-  
-  
-  
-  // /// position  par rapport au ground
-  // var ray = new BABYLON.Ray(new BABYLON.Vector3(dude.position.x, ground.getBoundingInfo().boundingBox.maximumWorld.y + 1, dude.position.z), new BABYLON.Vector3(0, -1, 0)); // Direction
-  // var worldInverse = new BABYLON.Matrix();
-            
-  // ground.getWorldMatrix().invertToRef(worldInverse);
-  // ray = BABYLON.Ray.Transform(ray, worldInverse);
-  
-
-  // var pickInfoDude = ground.intersects(ray);
-    
-  // if (pickInfoDude.hit) {
-  //     dude.position.y = pickInfoDude.pickedPoint.y + 0.02;       
-  // };
-        
-  // // console.log(dude.position.x,dude.position.y,dude.position.z, )
-
-  
 }
 
 
