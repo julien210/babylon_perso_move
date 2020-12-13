@@ -1,5 +1,5 @@
 import React from "react"
-import { Content } from "../components/content"
+import  Content  from "../components/content"
 import Layout from "../components/layout"
 import SEO from "../components/seo"
 import Scene from  "../components/scene"
@@ -7,7 +7,7 @@ import Scene from  "../components/scene"
 const IndexPage = () => (
   <Layout>
     <SEO title="Home" />
-    < Content />
+    <Content />
     <Scene />
   </Layout>
 )
