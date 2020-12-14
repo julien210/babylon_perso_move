@@ -14,8 +14,8 @@ import './scene.css';
 
 import { SceneLoader } from "@babylonjs/core/Loading/sceneLoader";
 import {AnimationPropertiesOverride} from '@babylonjs/core/Animations/animationPropertiesOverride'
-import { Color3, Vector3 } from '@babylonjs/core/Maths/math'
-//import {ShadowGenerator} from  '@babylonjs/core/Lights/Shadows/shadowGenerator'
+import { Color3, Color4, Vector3 } from '@babylonjs/core/Maths/math'
+import {ShadowGenerator} from  '@babylonjs/core/Lights/Shadows/shadowGenerator'
 import {Ellipse} from '@babylonjs/gui/2D/controls/ellipse'
 import {Control} from '@babylonjs/gui/2D/controls/control'
 
@@ -32,9 +32,12 @@ import { RayHelper } from '@babylonjs/core/Debug/rayHelper'
 import '@babylonjs/core/Debug/rayHelper'
 import {Matrix} from '@babylonjs/core'
 
+import { AssetsManager } from '@babylonjs/core/Misc/assetsManager'
+import { CubeTexture } from '@babylonjs/core/Materials/Textures/cubeTexture'
 
 let box;
 let babylonLink;
+let castRay
 
 
 
@@ -45,7 +48,7 @@ const onSceneReady = scene => {
   // camera.setTarget(Vector3.Zero());
   
   var camera = new ArcRotateCamera("Camera", 0, 0, 0, new Vector3(0, 1, -1), scene);
-  camera.setPosition(new Vector3(2, 4, -40));
+  camera.setPosition(new Vector3(2, 8, -16));
   
   
  
@@ -54,19 +57,18 @@ const onSceneReady = scene => {
   camera.attachControl(canvas, true);
 
   // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
-  var light = new HemisphericLight("light", new Vector3(1, 1, 0), scene);
-  //var light1 = new DirectionalLight("DirectionalLight", new Vector3(-0.5, -1, 0), scene);
+  //var light = new HemisphericLight("light", new Vector3(0, -10, -2), scene);
+  var light1 = new DirectionalLight("DirectionalLight", new Vector3(0, -20, 1), scene);
   // Default intensity is 1. Let's dim the light a small amount
-  light.intensity = 0.7;
+  light1.intensity = 0.8;
   // Our built-in 'box' shape.
-  box = MeshBuilder.CreateBox("box", {size: 1}, scene);
+  box = MeshBuilder.CreateBox("box", {size: 7}, scene);
   // Move the box upward 1/2 its height
   box.position.x = -4;
-  box.position.y = 2;
+  box.position.y = 0;
 
- 
- 
 
+  scene.clearColor = new Color4(0.73, 0.76, 0.96, 0.1);
 
 
   /////////////////// joystick 
@@ -251,110 +253,33 @@ const panel = new StackPanel();
     const ground = MeshBuilder.CreateGroundFromHeightMap("ground", "https://pbs.twimg.com/media/CQgYtX4UEAAaRBG?format=png", options, scene);
 
     const groundMaterial = new StandardMaterial("ground", scene);
-    //groundMaterial.emissiveColor = new Color3(1, 1, 0);
-    groundMaterial.specularColor = new Color3(0.91, 0.56, 0.56);
-    //  groundMaterial.diffuseTexture = new Texture("https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Macadam-1.JPG/800px-Macadam-1.JPG", scene);
+   // groundMaterial.emissiveColor = new Color3(0.58, 0.07, 0.07, 0.7);
+    groundMaterial.emissiveColor = new Color3(0.99, 0.81, 0);
+   // groundMaterial.specularColor = new Color3(1, 0.87, 0.26, 0.7);
+   groundMaterial.specularColor = new Color3(0.92, 0.96, 0.46);
+   
+   groundMaterial.diffuseTexture = new Texture("https://i2.wp.com/3dtextures.me/wp-content/uploads/2020/05/Material_1532.jpg?w=600&ssl=1", scene);
     // groundMaterial.diffuseTexture.uScale = 1;
     // groundMaterial.diffuseTexture.vScale = 1;
-    groundMaterial.specularColor = new Color3(1, 1, 0);
+   // groundMaterial.specularColor = new Color3(1, 1, 1);
     ground.material = groundMaterial;
-    groundMaterial.freeze();
+    //groundMaterial.freeze();
     //groundMaterial.wireframe = true;
-
     
+    const  shadowGenerator = new ShadowGenerator(1024, light1);
+    ground.receiveShadows = true;
+		
+
     var localMeshDirection = new Vector3(0, -1, 0);
     var localMeshOrigin = new Vector3(0, 0, .4);
     var length = 10;
 
-     //rayHelper.attachToMesh(dude, localMeshDirection, localMeshOrigin, length);
-    // rayHelper.show(scene);
-
-    //let ray = new Ray()
-    //ray = ray(new Vector3(dude.position.x, ground.getBoundingInfo().boundingBox.maximumWorld.y + 1, dude.position.z), new Vector3(0, -1, 0)); // Direction
-    //var rayHelper = new RayHelper(ray);
-    
-              
-//  ground.getWorldMatrix().invertToRef(worldInverse);
-//   ray = BABYLON.Ray.Transform(ray, worldInverse)  
-//  var pickInfoDude = ground.intersects(ray);
-
- // console.log(ground.getBoundingInfo().boundingBox.maximumWorld.y + 1)
+   
 ///////////////////// fin joystick
-  SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/julien210/thion/julien210-assets/", "13.babylon", scene, function (newMeshes, particleSystems, skeletons) {
-    //  const skeleton = skeletons[0];
-    //  const dude = newMeshes[0]
-    // // ROBOT
-    // skeleton.animationPropertiesOverride = new AnimationPropertiesOverride();
-    // skeleton.animationPropertiesOverride.enableBlending = true;
-    // skeleton.animationPropertiesOverride.blendingSpeed = 0.05;
-    // skeleton.animationPropertiesOverride.loopMode = 1;
-
-    // const walkRange = skeleton.getAnimationRange("walk");
-    // const idleRange = skeleton.getAnimationRange("idle");
-    // const runJumpRange = skeleton.getAnimationRange("runJump");  
-    // const fruitRange =  skeleton.getAnimationRange("fruit");
-    // const animating = false
-    
-
-  // try{
-          
-  //   const skeleton = skeletons[0];
-  //   skeleton.animationPropertiesOverride = new AnimationPropertiesOverride();
-  //   skeleton.animationPropertiesOverride.enableBlending = true;
-  //   skeleton.animationPropertiesOverride.blendingSpeed = 0.05;
-  //   skeleton.animationPropertiesOverride.loopMode = 1;
-
-  //   const idleRange = skeleton.getAnimationRange("YBot_Idle");
-  //   const walkRange = skeleton.getAnimationRange("YBot_Walk");
-  //   const runRange = skeleton.getAnimationRange("YBot_Run");
-  //   const leftRange = skeleton.getAnimationRange("YBot_LeftStrafeWalk");
-  //   const rightRange = skeleton.getAnimationRange("YBot_RightStrafeWalk");
-  //   let animating = false;
-
-  //   scene.onBeforeRenderObservable.add(()=>{
-  //    // let keydown = false;
-  //     if(inputMap["w"] || inputMap["ArrowUp"]){
-  //         newMeshes[0].position.z+= 0.5
-  //         newMeshes[0].rotation.y = 0
-  //         keydown=true;
-  //     } 
-  //     if(inputMap["a"] || inputMap["ArrowLeft"]){
-  //         newMeshes[0].position.x-=0.01
-  //         newMeshes[0].rotation.y = 3*Math.PI/2
-  //         keydown=true;
-  //     } 
-  //     if(inputMap["s"] || inputMap["ArrowDown"]){
-  //         newMeshes[0].position.z-=0.01
-  //         newMeshes[0].rotation.y = 2*Math.PI/2
-  //         keydown=true;
-  //     } 
-  //     if(inputMap["d"] || inputMap["ArrowRight"]){
-  //         newMeshes[0].position.x+=0.01
-  //         newMeshes[0].rotation.y = Math.PI/2
-  //         keydown=true;
-  //     }
-  //     if(keydown){
-  //         if(!animating){
-  //             animating = true;
-  //             scene.beginAnimation(skeleton, walkRange.from, walkRange.to, true);
-  //         }
-  //     }else{
-  //         animating = false;
-  //         scene.stopAnimation(skeleton)
-  //         scene.beginAnimation(skeleton, idleRange.from, idleRange.to, true);
-  //     }
-  //  })
-  // }catch(e){console.log(e)}
-
-
-    // const walkRange = skeleton.getAnimationRange("walk");
-    // const idleRange = skeleton.getAnimationRange("idle");
-    // const runJumpRange = skeleton.getAnimationRange("runJump");  
-    // const fruitRange =  skeleton.getAnimationRange("fruit");
-  
-    
+//   SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/julien210/thion/julien210-assets/", "13.babylon", scene, function (newMeshes, particleSystems, skeletons) {
+ SceneLoader.ImportMesh("", "https://cdn.jsdelivr.net/gh/julien210/thion@86cd091bbf1906b29bd38e200e99c9b17ba5003c/", "13.babylon", scene, function (newMeshes, particleSystems, skeletons) {
     const  dude = newMeshes[0];
-      dude.position.z = -30;
+      dude.position.z = -10;
       //  dude.backFaceCulling = false;
       //  dude.rotation.y = (2 * Math.PI) ;
       dude.scaling = new Vector3(.2, .2, .2);       // pour  un element d un seul mesh ou  avec parent ?
@@ -375,20 +300,20 @@ const panel = new StackPanel();
     const walkAnim = scene.beginWeightedAnimation(skeleton, walkRange.from, walkRange.to, 0, true);
     const pickAnim = scene.beginWeightedAnimation(skeleton, fruitRange.from, fruitRange.to, 0, true, 1);
 
-
-
+    shadowGenerator.addShadowCaster(dude);
+    shadowGenerator.useExponentialShadowMap = true;    
     scene.onBeforeRenderObservable.add(()=>{
 
-      
-      let ray = new Ray(new Vector3(dude.position.x, ground.getBoundingInfo().boundingBox.maximumWorld.y + 1, dude.position.z), new Vector3(0, -1, 0)); // Direction
+    // definition  des  ray  pour intersech
+    let ray = new Ray(new Vector3(dude.position.x, ground.getBoundingInfo().boundingBox.maximumWorld.y + 1, dude.position.z), new Vector3(0, -1, 0)); // Direction
       const  worldInverse = new Matrix();
       ground.getWorldMatrix().invertToRef(worldInverse);
       ray = Ray.Transform(ray, worldInverse);
-      console.log (ray)
+     // console.log (ray)
       let pickInfoDude = ground.intersects(ray);
           
         if (pickInfoDude.hit) {
-            dude.position.y = pickInfoDude.pickedPoint.y + 0.02;       
+            dude.position.y = pickInfoDude.pickedPoint.y + 0.01;       
         };
               
       camera.setTarget(newMeshes[0].position);
@@ -451,7 +376,6 @@ const panel = new StackPanel();
               idleAnim.weight = 0;
               pickAnim.weight = 0;
 
-
           }
           if (picking){   
               console.log('picking'); 
@@ -485,80 +409,94 @@ const panel = new StackPanel();
 scene.collisionsEnabled = true;
 scene.gravity = new Vector3(0, -0.9, 0);
 
-dude.lookAt(box.position);
+
 
 //////////////////////////////////////////////////////////////////// TERRAIN //////////////////////////////////////
 
-
-              
-//  ground.getWorldMatrix().invertToRef(worldInverse);
-//   ray = BABYLON.Ray.Transform(ray, worldInverse)  
-//  var pickInfoDude = ground.intersects(ray);
-
- // console.log(ground.getBoundingInfo().boundingBox.maximumWorld.y + 1)
-
     const ground1 =  GroundBuilder.CreateGround("ground", {width: 150, height: 150}, scene);
     ground1.material =  groundMaterial;
+
+//////////////////////////////////////////////////////////////////// INTERSECH ////////////////////////////////////////
+    for (var i = 0; i < scene.meshes.length; i++) {
+      if (dude !== scene.meshes[i]) {
+          dude.intersectsMesh(scene.meshes[i], false);    
+      }
+    }
+    
+
+
+    function vecToLocal(vector, mesh){
+      var m = mesh.getWorldMatrix();
+      var v = Vector3.TransformCoordinates(vector, m);
+    return v;		 
+    }
+    castRay = ()=>{       
+    let origin = dude.position;
+
+    let forward = new Vector3(0,0,-1);		
+    forward = vecToLocal(forward, box);
+
+    let direction = forward.subtract(origin);
+    direction = Vector3.Normalize(direction);
+
+    const length = 1;
+
+    const ray = new Ray(origin, direction, length);
+
+    const rayHelper = new RayHelper(ray);		
+   // rayHelper.show(scene);		
+    }
+     castRay()
+    
+
+   // const meshBox = GetTriangles(box);
+   // const meshBoxBounds = box.getBoundingInfo().boundingBox;
+   // console.log(meshBoxBounds)
+    
+ 
+ })    // finsceneLoader   
+ 
   
-})    // finsceneLoader   
+
 
   // Register click event on box mesh
   box.actionManager = new ActionManager(scene);
   box.actionManager.registerAction(
     new ExecuteCodeAction(
-        ActionManager.OnPickTrigger,
-        () => {
-          babylonLink.current.click()
-        }
+      ActionManager.OnPickTrigger,
+      () => {
+        babylonLink.current.click()
+      }
     )
-  );
-  
+  ); 
+
 }
  
 /**
  * Will run on every frame render.  We are spinning the box on y-axis.
  */
 const onRender = scene => {
-  if (box !== undefined) {
-    var deltaTimeInMillis = scene.getEngine().getDeltaTime();
-    const rpm = 10;
-    box.rotation.y += ((rpm / 60) * Math.PI * 2 * (deltaTimeInMillis / 1000));
-  }
+  // if (box !== undefined) {
+  //   var deltaTimeInMillis = scene.getEngine().getDeltaTime();
+  //   const rpm = 10;
+  //   box.rotation.y += ((rpm / 60) * Math.PI * 2 * (deltaTimeInMillis / 1000));
+  // }
+    if (castRay !== undefined){
+      castRay()
+      if(scene.meshes[2].intersectsMesh(box, true)){
+        console.log("touch")
+      }
 
-
-  
-  
-  
-  
-  
-  
-  
-  // /// position  par rapport au ground
-  // var ray = new BABYLON.Ray(new BABYLON.Vector3(dude.position.x, ground.getBoundingInfo().boundingBox.maximumWorld.y + 1, dude.position.z), new BABYLON.Vector3(0, -1, 0)); // Direction
-  // var worldInverse = new BABYLON.Matrix();
-            
-  // ground.getWorldMatrix().invertToRef(worldInverse);
-  // ray = BABYLON.Ray.Transform(ray, worldInverse);
-  
-
-  // var pickInfoDude = ground.intersects(ray);
-    
-  // if (pickInfoDude.hit) {
-  //     dude.position.y = pickInfoDude.pickedPoint.y + 0.02;       
-  // };
-        
-  // // console.log(dude.position.x,dude.position.y,dude.position.z, )
-
-  
+    }
 }
 
 
 export default () => {
- // babylonLink = useRef(null);
+  babylonLink = useRef(null);
 
   return (
-
+    <>
       <BabylonScene antialias onSceneReady={onSceneReady} onRender={onRender} id='render-canvas' />
-   
+    </>
   )
 }
