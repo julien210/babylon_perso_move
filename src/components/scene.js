@@ -45,7 +45,7 @@ import { SpriteManager } from '@babylonjs/core/Sprites/spriteManager'
 import { Sprite } from '@babylonjs/core/Sprites/sprite'
 /////////////////////////////////////////////// FIN DES IMPORTS ////////////////////////////////////
 
-
+let boxTresor
 let box;
 let babylonLink;
 let castRay
@@ -67,24 +67,31 @@ const onSceneReady = async (scene) => {
 
   // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
   var light = new HemisphericLight("light", new Vector3(-5, -10, 0), scene);
-  light.intensity = 0.4;
+  light.intensity = 0.6;
   var light1 = new DirectionalLight("DirectionalLight", new Vector3(5, -20, 0), scene);
   light1.intensity = 0.6;
 
   // Our built-in 'box' shape.
-  box = MeshBuilder.CreateBox("box", {size: 4}, scene);
-  // Move the box upward 1/2 its height
- // box.position.x = 20;
-  box.position.y = 3;
- // box.position.z = -50;
+  box = MeshBuilder.CreateBox("box", {size: 1}, scene);
+  // Move the box upward 1/2 its height  
+  box.position.y = 0.5;
   const matCV = new StandardMaterial("mat", scene);
   const texture = new Texture("https://cdn.onlinewebfonts.com/svg/img_571171.png", scene);
+  matCV.glossiness = 1;
   matCV.diffuseTexture = texture;
+  //box.material  = matCV
 
-  box.material  = matCV
+
+    boxTresor = MeshBuilder.CreateBox("boxTres", {size: 3}, scene);  
+    boxTresor.position.y = 5;
+    boxTresor.position.x = 10;
+    boxTresor.position.z = 40;
+    boxTresor.material  = matCV
+    boxTresor.physicsImpostor = new PhysicsImpostor(boxTresor , PhysicsImpostor.BoxImpostor, { mass: 0.5, friction: 0.0, restitution: 0.3 }, scene);
 
 // scene.clearColor = new Color4(0.73, 0.76, 0.96, 0.1);
-  scene.clearColor = new Color3.Black();
+ // scene.clearColor = new Color3.Black();
+ //scene.clearColor = new Color3.Yellow();
 
   scene.enablePhysics(null, new CannonJSPlugin(true, 10, cannon));
 
@@ -98,162 +105,110 @@ function  makeThumbArea  (name, thickness, color, background, ...curves){
   return rect;
   }
 
-const adt = AdvancedDynamicTexture.CreateFullscreenUI("UI");
+
+  let adt = AdvancedDynamicTexture.CreateFullscreenUI("UI");
   let xAddPos = 0;
   let yAddPos = 0;
   let xAddRot = 0;
   let yAddRot = 0;
-  let sideJoystickOffset = "-10";
-  let bottomJoystickOffset = "-10";
-  let translateTransform;
+  let sideJoystickOffset = adt._canvas.width/2 - 80
+  let bottomJoystickOffset = -20;
+  let translateTransform;    
+
 
   const panel = new StackPanel();
-     adt.addControl(panel);
+  panel.verticalAlignment =  Control.VERTICAL_ALIGNMENT_TOP
+  panel.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER
+  adt.addControl(panel);
 
-  const image = new Image('imageBabylonjs', "https://d33wubrfki0l68.cloudfront.net/3c934afefb2da5f35adefb52716ba9cc9ffa37ab/061c6/img/layout/logo-babylonjs-v3.svg");
-    image.width = "100px";
-    image.height = "100px";
-    image.top = "-200px"
-    image.alpha = 0.5;
-    image.color = "yellow";
-    image.isHighlighted = true;
-    image.shadowBlur = 11;
 
-    adt.addControl(image)
-    image.onPointerDownObservable.add(function() {
-       image.width = "200px";
-    });
 
-  const leftThumbContainer = makeThumbArea("leftThumb", 2, "blue", null);
-    leftThumbContainer.height = "160px";
-    leftThumbContainer.width = "160px";
-    leftThumbContainer.isPointerBlocker = true;
-    leftThumbContainer.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
-    leftThumbContainer.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
-    leftThumbContainer.alpha = 0.4;
+  //const image = new Image('imageBabylonjs', "https://d33wubrfki0l68.cloudfront.net/3c934afefb2da5f35adefb52716ba9cc9ffa37ab/061c6/img/layout/logo-babylonjs-v3.svg");
+  const  image = Button.CreateImageOnlyButton('imageBabylonjs', "https://www.flaticon.com/svg/static/icons/svg/1371/1371211.svg");
+  image.width = "75px";
+  image.height = "75px";
+  image.top = "150px"
+  image.alpha = 0.5;
+  image.color = "yellow";
+  image.isHighlighted = true;
+  image.shadowBlur = 11;
+  image.border = "none"
 
-  const leftInnerThumbContainer = makeThumbArea("leftInnterThumb", 4, "blue", null);
-    leftInnerThumbContainer.height = "80px";
-    leftInnerThumbContainer.width = "80px";
-    leftInnerThumbContainer.isPointerBlocker = true;
-    leftInnerThumbContainer.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
-    leftInnerThumbContainer.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
-
-  const leftPuck = makeThumbArea("leftPuck",0, "blue", "blue");
-    leftPuck.height = "60px";
-    leftPuck.width = "60px";
-    leftPuck.isPointerBlocker = true;
-    leftPuck.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
-    leftPuck.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
-
-  leftThumbContainer.onPointerDownObservable.add(function(coordinates) {
-    leftPuck.isVisible = true;
-    leftPuck.floatLeft = coordinates.x-(leftThumbContainer._currentMeasure.width*.5);
-    leftPuck.left = leftPuck.floatLeft;
-    leftPuck.floatTop = adt._canvas.height - coordinates.y-(leftThumbContainer._currentMeasure.height*.5);
-    leftPuck.top = leftPuck.floatTop*-1;
-    leftPuck.isDown = true;
-    leftThumbContainer.alpha = 0.9;
+  adt.addControl(image)
+  image.onPointerDownObservable.add(function() {
+    window.location.replace ( "http://doc.babylonjs.com/")
   });
 
-  leftThumbContainer.onPointerUpObservable.add(function(coordinates) {
-    xAddPos = 0;
-    yAddPos = 0;
-    leftPuck.isDown = false;
-    leftPuck.isVisible = false;
-    leftThumbContainer.alpha = 0.4;
-  });
-
-  leftThumbContainer.onPointerMoveObservable.add(function(coordinates) {
-    if (leftPuck.isDown) {
-      xAddPos = coordinates.x-(leftThumbContainer._currentMeasure.width*.5);
-      yAddPos = adt._canvas.height - coordinates.y-(leftThumbContainer._currentMeasure.height*.5);
-      leftPuck.floatLeft = xAddPos;
-      leftPuck.floatTop = yAddPos*-1;
-      leftPuck.left = leftPuck.floatLeft;
-      leftPuck.top = leftPuck.floatTop;
-    }
-  });
-
- // adt.addControl(leftThumbContainer);
- // leftThumbContainer.addControl(leftInnerThumbContainer);
- // leftThumbContainer.addControl(leftPuck);
-//  leftPuck.isVisible = true;
-
- //boutton  droit
-  const rightThumbContainer = makeThumbArea("rightThumb", 2, "yellow", null);
-    rightThumbContainer.height = "160px";
-    rightThumbContainer.width = "160px";
-    rightThumbContainer.isPointerBlocker = true;
-    rightThumbContainer.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
-    rightThumbContainer.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
-    rightThumbContainer.alpha = 0.4;
-    rightThumbContainer.left = sideJoystickOffset;                                                                     ////////
-    rightThumbContainer.top = bottomJoystickOffset;
 
 
-  const rightInnerThumbContainer = makeThumbArea("rightInnterThumb", 4, "yellow", null);
-    rightInnerThumbContainer.height = "80px";
-    rightInnerThumbContainer.width = "80px";
-    rightInnerThumbContainer.isPointerBlocker = true;
-    rightInnerThumbContainer.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
-    rightInnerThumbContainer.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
-  const rightPuck = makeThumbArea("rightPuck",0, "red", "red");
-    rightPuck.height = "60px";
-    rightPuck.width = "60px";
-    rightPuck.isPointerBlocker = true;
-    rightPuck.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
-    rightPuck.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
-  adt.addControl(rightThumbContainer);
-  rightThumbContainer.addControl(rightInnerThumbContainer);
-  rightThumbContainer.addControl(rightPuck);
-  rightPuck.isVisible = false;
+   let rightThumbContainer = makeThumbArea("rightThumb", 2, "yellow", null);
+       rightThumbContainer.height = "160px";
+       rightThumbContainer.width = "160px";
+       rightThumbContainer.isPointerBlocker = true;
+       rightThumbContainer.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
+       rightThumbContainer.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
+       rightThumbContainer.alpha = 0.4;
+       rightThumbContainer.left = -sideJoystickOffset;
+       rightThumbContainer.top = bottomJoystickOffset;
 
-  // mecanique du boutton droit
-  rightThumbContainer.onPointerDownObservable.add(function(coordinates) {
-    rightPuck.isVisible = true;
-    rightPuck.floatLeft = adt._canvas.width - coordinates.x-(rightThumbContainer._currentMeasure.width*.5)-sideJoystickOffset;
-    rightPuck.left = rightPuck.floatLeft;
-    rightPuck.floatTop = adt._canvas.height - coordinates.y-(rightThumbContainer._currentMeasure.height*.5)+bottomJoystickOffset;
-    rightPuck.top = rightPuck.floatTop*-1;
-    rightPuck.isDown = true;
-    rightThumbContainer.alpha = 0.9;
-  // console.log("left"+rightPuck.floatLeft, "top"+rightPuck.floatTop )
-  });
+   let rightInnerThumbContainer = makeThumbArea("rightInnterThumb", 6, "yellow", null);
+       rightInnerThumbContainer.height = "80px";
+       rightInnerThumbContainer.width = "80px";
+       rightInnerThumbContainer.isPointerBlocker = true;
+       rightInnerThumbContainer.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+       rightInnerThumbContainer.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
 
-  rightThumbContainer.onPointerUpObservable.add(function(coordinates) {
-    xAddRot = 0;
-    yAddRot = 0;
-    rightPuck.isDown = false;
+
+   let rightPuck = makeThumbArea("rightPuck",0, "yellow", "yellow");
+           rightPuck.height = "50px";
+           rightPuck.width = "50px";
+           rightPuck.isPointerBlocker = true;
+           rightPuck.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+           rightPuck.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+
+
+       rightThumbContainer.onPointerDownObservable.add(function(coordinates) {
+           rightPuck.isVisible = true;
+           rightPuck.floatLeft = adt._canvas.width - coordinates.x-(rightThumbContainer._currentMeasure.width*.5)-sideJoystickOffset;
+           rightPuck.left = rightPuck.floatLeft*-1;
+           rightPuck.floatTop = adt._canvas.height - coordinates.y-(rightThumbContainer._currentMeasure.height*.5)+bottomJoystickOffset;
+           rightPuck.top = rightPuck.floatTop*-1;
+           rightPuck.isDown = true;
+           rightThumbContainer.alpha = 0.9;
+       });
+
+       rightThumbContainer.onPointerUpObservable.add(function(coordinates) {
+           xAddRot = 0;
+           yAddRot = 0;
+           rightPuck.isDown = false;
+           rightPuck.isVisible = false;
+           rightThumbContainer.alpha = 0.4;
+       });
+
+      rightThumbContainer.onPointerMoveObservable.add(function(coordinates) {
+        if (rightPuck.isDown) {
+            xAddRot = adt._canvas.width - coordinates.x-(rightThumbContainer._currentMeasure.width*.5)-sideJoystickOffset;
+            yAddRot = adt._canvas.height - coordinates.y-(rightThumbContainer._currentMeasure.height*.5)+bottomJoystickOffset;
+            rightPuck.floatLeft = xAddRot*-1;
+            rightPuck.floatTop = yAddRot*-1;
+            rightPuck.left = rightPuck.floatLeft;
+            rightPuck.top = rightPuck.floatTop;
+        }
+      });
+
+    adt.addControl(rightThumbContainer);
+    rightThumbContainer.addControl(rightInnerThumbContainer);
+    rightThumbContainer.addControl(rightPuck);
     rightPuck.isVisible = false;
-    rightThumbContainer.alpha = 0.4;
-  });
 
-  rightThumbContainer.onPointerMoveObservable.add(function(coordinates) {
-    if (rightPuck.isDown) {
-      xAddRot = adt._canvas.width - coordinates.x-(rightThumbContainer._currentMeasure.width*.5);
-      yAddRot = adt._canvas.height - coordinates.y-(rightThumbContainer._currentMeasure.height*.5);
-      rightPuck.floatLeft = xAddRot*-1;
-      rightPuck.floatTop = yAddRot*-1;
-      rightPuck.left = rightPuck.floatLeft;
-      rightPuck.top = rightPuck.floatTop;
-    // console.log("MoveX"+xAddRot, "MoveY"+yAddRot )
-    }
-  })
-  // adt.addControl(rightThumbContainer);
-  // rightThumbContainer.addControl(rightInnerThumbContainer);
-  // rightThumbContainer.addControl(rightPuck);
-  // rightPuck.isVisible = false;
 
   // changement Camera
 let  buttonCamera =Button.CreateSimpleButton("butCam", "Camera switch");
- buttonCamera.height = "60px";
- buttonCamera.width = "100px";
- buttonCamera.color = "yellow";
- buttonCamera.background = "transparent";
- buttonCamera.left = "-40%";
- buttonCamera.top = "40%";
- adt.addControl(buttonCamera)
+  buttonCamera.height = "60px";
+  buttonCamera.width = "100px";
+  buttonCamera.color = "yellow";
+  buttonCamera.background = "transparent";
+panel.addControl(buttonCamera)
 
  buttonCamera.onPointerDownObservable.add(function() {
  // buttonCamera.onPointerClickObservable.add(function(){
@@ -305,6 +260,40 @@ textblock.color = "yellow";
     }
 
 
+    const mauveMaterial = new StandardMaterial("mauve", scene)
+    mauveMaterial.emissiveColor = new Color3(1, 0, 1);
+    SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/creationspirit/my-website/master/static/", "linkedin.babylon", scene, function (newMeshesLinkedin) {
+      const linkedin = newMeshesLinkedin[0]
+      linkedin.scaling = new Vector3(.5, .5, .5)
+      linkedin.position.y = 5
+      linkedin.position.x = 5
+      linkedin.position.z = -4
+      linkedin.rotation.y = Math.PI/4
+      linkedin.material = mauveMaterial
+      })
+    
+    SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/creationspirit/my-website/master/static/", "github.babylon", scene, function (newMeshesGithub) {
+    const github = newMeshesGithub[0]
+    github.position.y = 4
+    github.position.x = 2
+    github.position.z = 2
+    })
+   
+    const blueMaterial = new StandardMaterial("blue", scene)
+    blueMaterial.emissiveColor = new Color3(0, 0, 1);
+    SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/creationspirit/my-website/master/static/", "facebook.babylon", scene, function (newMeshesFacebook) {
+      const facebook = newMeshesFacebook[0]
+      facebook.position.y = 5
+      facebook.position.x = -4
+      facebook.position.z = -6
+      facebook.rotation.y = -Math.PI/4
+      facebook.material = blueMaterial
+      })
+    // const hdrTexture = CubeTexture.CreateFromPrefilteredData("https://raw.githubusercontent.com/julien210/thion/julien210-assets/environment.dds", scene);
+    // const  currentSkybox = scene.createDefaultSkybox(hdrTexture, true);
+
+    const hdrTexture = new CubeTexture("https://playground.babylonjs.com/textures/forest.env", scene);
+    const  currentSkybox = scene.createDefaultSkybox(hdrTexture, true);
 
 //   SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/julien210/thion/julien210-assets/", "13.babylon", scene, function (newMeshes, particleSystems, skeletons) {
  SceneLoader.ImportMesh("", "https://cdn.jsdelivr.net/gh/julien210/thion@86cd091bbf1906b29bd38e200e99c9b17ba5003c/", "13.babylon", scene, function (newMeshes, particleSystems, skeletons) {
@@ -359,9 +348,9 @@ textblock.color = "yellow";
       camera2.setTarget(newMeshes[0].position);
       // distance entre  dude  et   boxCV
 
-      let distanceDudeBox = Math.floor((Math.sqrt(Math.pow((dude.position.z - box.position.z), 2)+Math.pow((dude.position.z - box.position.z ), 2)))).toString()
+      let distanceDudeBoxTresor = Math.floor((Math.sqrt(Math.pow((dude.position.z - boxTresor.position.z), 2)+Math.pow((dude.position.z - boxTresor.position.z ), 2)))).toString()
 
-      textblock.text = "Plus que "+distanceDudeBox +" metres"
+      textblock.text = "Plus que "+distanceDudeBoxTresor +" metres"
       panel.addControl(textblock);
       //console.log(distanceDudeBox)
 
@@ -441,9 +430,9 @@ textblock.color = "yellow";
         //  pickAnim.weight = 0;
       }
       /// fibn de keypressed
-      if(dude.intersectsMesh(box, true)){
-        box.dispose()
-         if(box._isDisposed = true){
+      if(dude.intersectsMesh(boxTresor, true)){
+        boxTresor.dispose()
+         if(boxTresor._isDisposed = true){
           setTimeout(window.location.replace ( "http://doc.babylonjs.com/"), 200)
          }
       }
@@ -464,11 +453,23 @@ textblock.color = "yellow";
   const ray = new Ray();
   const rayHelper = new RayHelper(ray);
   const localMeshDirection = new Vector3(0, 0, -1);
-  const localMeshOrigin = new Vector3(0, 4, 0);
+  const localMeshOrigin = new Vector3(0, 2, 0);
   const length = 20;
   rayHelper.attachToMesh(dude, localMeshDirection, localMeshOrigin, length);
-  //rayHelper.show(scene, new Color3(255,0,0));
 
+  rayHelper.show(scene, new Color3(255,0,0));
+
+
+  //scene.registerBeforeRender(function() {
+  for (let index = 0; index < 50 - 1; index++) {
+  let  instance = box.createInstance("box" + index);
+    instance.position.x = 20 - Math.random() * 40;
+    instance.position.y = 1 + Math.random() * 10;
+    instance.position.z = 20 - Math.random() * 40;
+  //  instance.physicsImpostor = new PhysicsImpostor(box , PhysicsImpostor.BoxImpostor, { mass: 0.5, friction: 0.0, restitution: 0.3 }, scene);
+  //   instance.alwaysSelectAsActiveMesh = true;
+  }
+  //})
 
 
  })    // finsceneLoader
@@ -486,6 +487,7 @@ textblock.color = "yellow";
       }
     )
   );
+  
 
 }
 
@@ -493,17 +495,15 @@ textblock.color = "yellow";
  * Will run on every frame render.  We are spinning the box on y-axis.
  */
 const onRender = scene => {
-  if (box !== undefined) {
-    var deltaTimeInMillis = scene.getEngine().getDeltaTime();
-    const rpm = 10;
-    box.rotation.y += ((rpm / 60) * Math.PI * 2 * (deltaTimeInMillis / 1000));
+  if (boxTresor !== undefined) {
+    let deltaTimeInMillis = scene.getEngine().getDeltaTime();
+    let rpm = 10;
+    boxTresor.rotation.y += ((rpm / 60)* Math.PI * 2 * (deltaTimeInMillis / 1000));
   }
 }
 
-
 export default () => {
   babylonLink = useRef(null);
-
   return (
     <>
       <BabylonScene antialias onSceneReady={onSceneReady} onRender={onRender} id='render-canvas' />
