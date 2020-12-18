@@ -11,12 +11,7 @@ import Scene from  "../components/scene"
  const IndexPage = () => (
  
   <Layout>
-    <SEO title="Home" />
-
-    {
-     let  taille = window.innerWidth;
-    taille > 400 ?  <Content /> : null }
-    
+    <SEO title="Home" />    
     <Scene />
   </Layout>
 )
