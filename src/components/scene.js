@@ -127,7 +127,7 @@ function  makeThumbArea  (name, thickness, color, background, ...curves){
   const  image = Button.CreateImageOnlyButton('imageBabylonjs', "https://www.flaticon.com/svg/static/icons/svg/1371/1371211.svg");
   image.width = "75px";
   image.height = "75px";
-  image.top = "-50px"
+//  image.top = "0px"
   image.alpha = 0.5;
   image.color = "yellow";
   image.isHighlighted = true;
