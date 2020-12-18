@@ -59,11 +59,18 @@ const onSceneReady = async (scene) => {
   camera1.setPosition(new Vector3(0, 200, 0));
   camera1 = scene.activeCamera
 
+  
+  scene.enablePhysics(null, new CannonJSPlugin(true, 10, cannon));
+
   setTimeout( ()=> ( scene.activeCamera = camera2), 5000)
   const canvas = scene.getEngine().getRenderingCanvas();
   //scene.activeCamera.attachControl(canvas, true);
 
-  let camera2 = new ArcRotateCamera("Camera2", 0, 0, 0,  new Vector3(-1, 5, -16 ), scene);
+  let camera2 = new ArcRotateCamera("Camera2", 0, 0, 0,  new Vector3(-1, 6, -18 ), scene);
+  camera2.upperBetaLimit = Math.PI / 2;   
+  camera2.lowerRadiusLimit = 5
+  camera2.upperRadiusLimit = 40
+ // camera2.fovMode = ArcRotateCamera.FOVMODE_HORIZONTAL_FIXED    
 
   // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
   var light = new HemisphericLight("light", new Vector3(-5, -10, 0), scene);
@@ -93,7 +100,6 @@ const onSceneReady = async (scene) => {
  // scene.clearColor = new Color3.Black();
  //scene.clearColor = new Color3.Yellow();
 
-  scene.enablePhysics(null, new CannonJSPlugin(true, 10, cannon));
 
  /////////////////// joystick
 function  makeThumbArea  (name, thickness, color, background, ...curves){

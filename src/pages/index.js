@@ -4,10 +4,17 @@ import Layout from "../components/layout"
 import SEO from "../components/seo"
 import Scene from  "../components/scene"
 
-const IndexPage = () => (
+ 
+
+ let  taille = window.innerWidth
+
+ const IndexPage = () => (
+ 
   <Layout>
     <SEO title="Home" />
-    <Content />
+    { taille > 400 ?  <Content /> : null }
+
+    
     <Scene />
   </Layout>
 )
