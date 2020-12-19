@@ -5,12 +5,12 @@ import { HemisphericLight } from '@babylonjs/core/Lights/hemisphericLight';
 import { DirectionalLight } from '@babylonjs/core/Lights/directionalLight'
 import { FreeCamera } from '@babylonjs/core/Cameras/freeCamera';
 import { ArcRotateCamera } from '@babylonjs/core/Cameras/arcRotateCamera'
-import { FollowCamera } from '@babylonjs/core/Cameras/followCamera'
+//import { FollowCamera } from '@babylonjs/core/Cameras/followCamera'
 
 import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder';
 import { GroundBuilder } from '@babylonjs/core/Meshes/Builders/groundBuilder'
 //import '@babylonjs/core/Meshes/Builders/groundBuilder'
-import BabylonScene from 'babylonjs-hook';
+ import BabylonScene from 'babylonjs-hook';
 import './scene.css';
 
 import { SceneLoader } from "@babylonjs/core/Loading/sceneLoader";
@@ -55,51 +55,38 @@ let dist = ""
 
 const onSceneReady = async (scene) => {
 
-  let camera1 = new ArcRotateCamera("Camera1", 0, 0, 0,  new Vector3(1, 1, Math.PI), scene);
-  camera1.setPosition(new Vector3(0, 200, 0));
-  camera1 = scene.activeCamera
-
-  
-  scene.enablePhysics(null, new CannonJSPlugin(true, 10, cannon));
-
-  setTimeout( ()=> ( scene.activeCamera = camera2), 5000)
   const canvas = scene.getEngine().getRenderingCanvas();
-  //scene.activeCamera.attachControl(canvas, true);
 
-  let camera2 = new ArcRotateCamera("Camera2", 0, 0, 0,  new Vector3(-1, 6, -18 ), scene);
-  camera2.upperBetaLimit = Math.PI / 2;   
-  camera2.lowerRadiusLimit = 5
-  camera2.upperRadiusLimit = 40
- // camera2.fovMode = ArcRotateCamera.FOVMODE_HORIZONTAL_FIXED    
+  let camera = new FreeCamera("FreeCamera", new Vector3(0, 250, 0), scene);
+  camera._needMoveForGravity = true;
+  
+  scene.activeCamera = camera
+  scene.activeCamera.attachControl(canvas, true);
 
+ // let camera2 = new ArcRotateCamera("Camera2", 1, 1, 0,  new Vector3(0, 6, 2 ), scene);
+  let camera2 = new ArcRotateCamera("Camera", 0, 0, 0, new Vector3(0, 6, 2), scene);
+  setTimeout( ()=> ( scene.activeCamera = camera2), 8000)
+  
   // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
-  var light = new HemisphericLight("light", new Vector3(-5, -10, 0), scene);
-  light.intensity = 0.6;
+  var light = new HemisphericLight("light", new Vector3(-5, -20, 0), scene);
+  light.intensity = 0.5;
   var light1 = new DirectionalLight("DirectionalLight", new Vector3(5, -20, 0), scene);
-  light1.intensity = 0.6;
+  light1.intensity = 0.5;
+
+ // scene.enablePhysics(null, new CannonJSPlugin(true, 10, cannon));
 
   // Our built-in 'box' shape.
   box = MeshBuilder.CreateBox("box", {size: 1}, scene);
-  // Move the box upward 1/2 its height  
   box.position.y = 0.5;
   const matCV = new StandardMaterial("mat", scene);
   const texture = new Texture("https://cdn.onlinewebfonts.com/svg/img_571171.png", scene);
   matCV.glossiness = 1;
   matCV.diffuseTexture = texture;
-  //box.material  = matCV
 
-
-    boxTresor = MeshBuilder.CreateBox("boxTres", {size: 3}, scene);  
-    boxTresor.position.y = 5;
-    boxTresor.position.x = 10;
-    boxTresor.position.z = 40;
-    boxTresor.material  = matCV
-    boxTresor.physicsImpostor = new PhysicsImpostor(boxTresor , PhysicsImpostor.BoxImpostor, { mass: 0.5, friction: 0.0, restitution: 0.3 }, scene);
-
-// scene.clearColor = new Color4(0.73, 0.76, 0.96, 0.1);
- // scene.clearColor = new Color3.Black();
- //scene.clearColor = new Color3.Yellow();
-
+  boxTresor = MeshBuilder.CreateBox("boxTres", {size: 3}, scene);  
+  boxTresor.position = new Vector3(-20, 5, 50);
+  camera.lockedTarget = boxTresor;
+  boxTresor.material  = matCV
 
  /////////////////// joystick
 function  makeThumbArea  (name, thickness, color, background, ...curves){
@@ -111,10 +98,9 @@ function  makeThumbArea  (name, thickness, color, background, ...curves){
   return rect;
   }
 
-
   let adt = AdvancedDynamicTexture.CreateFullscreenUI("UI");
-  let xAddPos = 0;
-  let yAddPos = 0;
+  // let xAddPos = 0;
+  // let yAddPos = 0;
   let xAddRot = 0;
   let yAddRot = 0;
   let sideJoystickOffset = adt._canvas.width/2 - 80
@@ -133,7 +119,7 @@ function  makeThumbArea  (name, thickness, color, background, ...curves){
   const  image = Button.CreateImageOnlyButton('imageBabylonjs', "https://www.flaticon.com/svg/static/icons/svg/1371/1371211.svg");
   image.width = "75px";
   image.height = "75px";
-//  image.top = "0px"
+  image.top = "150px"
   image.alpha = 0.5;
   image.color = "yellow";
   image.isHighlighted = true;
@@ -144,8 +130,6 @@ function  makeThumbArea  (name, thickness, color, background, ...curves){
   image.onPointerDownObservable.add(function() {
     window.location.replace ( "http://doc.babylonjs.com/")
   });
-
-
 
    let rightThumbContainer = makeThumbArea("rightThumb", 2, "yellow", null);
        rightThumbContainer.height = "160px";
@@ -164,43 +148,41 @@ function  makeThumbArea  (name, thickness, color, background, ...curves){
        rightInnerThumbContainer.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
        rightInnerThumbContainer.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
 
-
    let rightPuck = makeThumbArea("rightPuck",0, "yellow", "yellow");
-           rightPuck.height = "50px";
-           rightPuck.width = "50px";
-           rightPuck.isPointerBlocker = true;
-           rightPuck.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
-           rightPuck.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+      rightPuck.height = "50px";
+      rightPuck.width = "50px";
+      rightPuck.isPointerBlocker = true;
+      rightPuck.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+      rightPuck.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
 
-
-       rightThumbContainer.onPointerDownObservable.add(function(coordinates) {
-           rightPuck.isVisible = true;
-           rightPuck.floatLeft = adt._canvas.width - coordinates.x-(rightThumbContainer._currentMeasure.width*.5)-sideJoystickOffset;
-           rightPuck.left = rightPuck.floatLeft*-1;
-           rightPuck.floatTop = adt._canvas.height - coordinates.y-(rightThumbContainer._currentMeasure.height*.5)+bottomJoystickOffset;
-           rightPuck.top = rightPuck.floatTop*-1;
-           rightPuck.isDown = true;
-           rightThumbContainer.alpha = 0.9;
-       });
-
-       rightThumbContainer.onPointerUpObservable.add(function(coordinates) {
-           xAddRot = 0;
-           yAddRot = 0;
-           rightPuck.isDown = false;
-           rightPuck.isVisible = false;
-           rightThumbContainer.alpha = 0.4;
-       });
-
-      rightThumbContainer.onPointerMoveObservable.add(function(coordinates) {
-        if (rightPuck.isDown) {
-            xAddRot = adt._canvas.width - coordinates.x-(rightThumbContainer._currentMeasure.width*.5)-sideJoystickOffset;
-            yAddRot = adt._canvas.height - coordinates.y-(rightThumbContainer._currentMeasure.height*.5)+bottomJoystickOffset;
-            rightPuck.floatLeft = xAddRot*-1;
-            rightPuck.floatTop = yAddRot*-1;
-            rightPuck.left = rightPuck.floatLeft;
-            rightPuck.top = rightPuck.floatTop;
-        }
+      rightThumbContainer.onPointerDownObservable.add(function(coordinates) {
+        rightPuck.isVisible = true;
+        rightPuck.floatLeft = adt._canvas.width - coordinates.x-(rightThumbContainer._currentMeasure.width*.5)-sideJoystickOffset;
+        rightPuck.left = rightPuck.floatLeft*-1;
+        rightPuck.floatTop = adt._canvas.height - coordinates.y-(rightThumbContainer._currentMeasure.height*.5)+bottomJoystickOffset;
+        rightPuck.top = rightPuck.floatTop*-1;
+        rightPuck.isDown = true;
+        rightThumbContainer.alpha = 0.9;
       });
+
+      rightThumbContainer.onPointerUpObservable.add(function(coordinates) {
+        xAddRot = 0;
+        yAddRot = 0;
+        rightPuck.isDown = false;
+        rightPuck.isVisible = false;
+        rightThumbContainer.alpha = 0.4;
+      });
+
+    rightThumbContainer.onPointerMoveObservable.add(function(coordinates) {
+      if (rightPuck.isDown) {
+        xAddRot = adt._canvas.width - coordinates.x-(rightThumbContainer._currentMeasure.width*.5)-sideJoystickOffset;
+        yAddRot = adt._canvas.height - coordinates.y-(rightThumbContainer._currentMeasure.height*.5)+bottomJoystickOffset;
+        rightPuck.floatLeft = xAddRot*-1;
+        rightPuck.floatTop = yAddRot*-1;
+        rightPuck.left = rightPuck.floatLeft;
+        rightPuck.top = rightPuck.floatTop;
+      }
+    });
 
     adt.addControl(rightThumbContainer);
     rightThumbContainer.addControl(rightInnerThumbContainer);
@@ -208,18 +190,21 @@ function  makeThumbArea  (name, thickness, color, background, ...curves){
     rightPuck.isVisible = false;
 
 
-  // changement Camera
-let  buttonCamera =Button.CreateSimpleButton("butCam", "Camera switch");
-  buttonCamera.height = "60px";
-  buttonCamera.width = "100px";
+  const  buttonCamera = Button.CreateImageOnlyButton('butCam', "https://www.flaticon.com/svg/static/icons/svg/1160/1160041.svg");
+  buttonCamera.width = "60px";
+  buttonCamera.height = "40px";
+  buttonCamera.paddingTop = "10px"
+  buttonCamera.alpha = 0.5;
   buttonCamera.color = "yellow";
-  buttonCamera.background = "transparent";
-panel.addControl(buttonCamera)
+ // buttonCamera.isHighlighted = true;
+  buttonCamera.shadowBlur = 11;
+  buttonCamera.border = "none"
+  panel.addControl(buttonCamera)
+
 
  buttonCamera.onPointerDownObservable.add(function() {
  // buttonCamera.onPointerClickObservable.add(function(){
-  scene.activeCamera = (scene.activeCamera === camera1 ? camera2 : camera1);
-
+  scene.activeCamera = (scene.activeCamera === camera ? camera2 : camera);
 });
 
 const textblock = new TextBlock("textblock" );
@@ -242,29 +227,30 @@ textblock.color = "yellow";
     // Ground
     // ===========================================================
     const subdivisions = 50;
-    const width = 150;
-    const height = 150;
+    const width = 300;
+    const height = 300;
     const options = {width: width, height: height, subdivisions: subdivisions, minHeight: 0 ,  maxHeight: 8};
     const ground = MeshBuilder.CreateGroundFromHeightMap("ground", "https://raw.githubusercontent.com/julien210/thion/julien210-assets/fredpaq.jpg", options, scene);
+   
+   // ground.rotation = new Vector3(0, Math.PI/2, 0);
     const groundMaterial = new StandardMaterial("ground", scene);
 
     groundMaterial.emissiveColor = new Color3.FromHexString("#FFFFCC")
     groundMaterial.diffuseTexture = new Texture("https://raw.githubusercontent.com/julien210/thion/julien210-assets/fredpaq.jpg", scene);
+    groundMaterial.freeze();
     ground.material = groundMaterial;
-    //groundMaterial.freeze();
-    ground.physicsImpostor = new PhysicsImpostor(ground, PhysicsImpostor.BoxImpostor, { mass: 0, friction: 0, restitution: 0 }, scene);
+    //ground.physicsImpostor = new PhysicsImpostor(ground, PhysicsImpostor.BoxImpostor, { mass: 0, friction: 0, restitution: 0 }, scene);
     ground.receiveShadows = true;
 
     const  shadowGenerator = new ShadowGenerator(1024, light1);
 
     const spriteManagerTrees = new SpriteManager("treesManager", "	https://playground.babylonjs.com/textures/palm.png", 2000, {width:1024, height: 1024}, scene);
-    for (let i = 0; i < 500; i++) {
+    for (let i = 0; i < 200; i++) {
       const tree = new Sprite("tree", spriteManagerTrees)
-      tree.position.x = Math.random() * (40);
-      tree.position.z = -20 + Math.random() * -20 ;
-      tree.position.y = 5
+      tree.position.x = Math.random() * (60);
+      tree.position.z = 20 + Math.random() * -60 ;
+      tree.position.y = 4
     }
-
 
     const mauveMaterial = new StandardMaterial("mauve", scene)
     mauveMaterial.emissiveColor = new Color3(1, 0, 1);
@@ -305,12 +291,12 @@ textblock.color = "yellow";
  SceneLoader.ImportMesh("", "https://cdn.jsdelivr.net/gh/julien210/thion@86cd091bbf1906b29bd38e200e99c9b17ba5003c/", "13.babylon", scene, function (newMeshes, particleSystems, skeletons) {
 //  SceneLoader.ImportMesh("", "https://res.cloudinary.com/dj8ifctcd/raw/upload/v1608106498/", "dummy3_xmcxeu.babylon", scene, function (newMeshes, particleSystems, skeletons) {
     const  dude = newMeshes[0];
-      dude.position.z = -10;
-      //  dude.backFaceCulling = false;
-      dude.rotation.y = ( Math.PI) ;
+      dude.position.z = -4;
+      dude.backFaceCulling = false;
+
       dude.scaling = new Vector3(.2, .2, .2);       // pour  un element d un seul mesh ou  avec parent ?
      // dude.showBoundingBox = true;
-      dude.physicsImpostor = new PhysicsImpostor(dude, PhysicsImpostor.BoxImpostor, { mass: 1, friction: 0.0, restitution: 0.3 }, scene);
+      //  dude.physicsImpostor = new PhysicsImpostor(dude, PhysicsImpostor.BoxImpostor, { mass: 1, friction: 0.0, restitution: 0.3 }, scene);
 
     const skeleton  =   skeletons[0];
       skeleton.animationPropertiesOverride = new AnimationPropertiesOverride();
@@ -352,9 +338,11 @@ textblock.color = "yellow";
         };
 
       camera2.setTarget(newMeshes[0].position);
+      camera2.lockedTarget = dude
       // distance entre  dude  et   boxCV
 
-      let distanceDudeBoxTresor = Math.floor((Math.sqrt(Math.pow((dude.position.z - boxTresor.position.z), 2)+Math.pow((dude.position.z - boxTresor.position.z ), 2)))).toString()
+      const distanceDudeBoxTresor = Math.floor((Math.sqrt(Math.pow((dude.position.z - boxTresor.position.z), 2)+Math.pow((dude.position.z - boxTresor.position.z ), 2)))).toString()
+      //console.log( distanceDudeBoxTresor)
 
       textblock.text = "Plus que "+distanceDudeBoxTresor +" metres"
       panel.addControl(textblock);
@@ -381,25 +369,27 @@ textblock.color = "yellow";
       //    console.log(actualSpeed)
       }
       let deg = (Math.atan2(xAddRot, yAddRot) )
+      
       // pour 13.babylon
+      console.log(deg)
       let  position = 0 ;   //  identique a   2*Math.PI
-      if (xAddRot>0) {
+       if (xAddRot>0) {  
         if (deg>0) {
-        newMeshes[0].rotation.y = ( position + (Math.PI + deg));
-        newMeshes[0].position.z += (yAddRot/2000)*actualSpeed;
-        newMeshes[0].position.x +=  (xAddRot/2000)*actualSpeed;
+          newMeshes[0].rotation.y = ( position - deg);
+          newMeshes[0].position.z -= (yAddRot/1000)*actualSpeed;
+          newMeshes[0].position.x +=  (xAddRot/1000)*actualSpeed;
         }
         keydown = true;
-        walking = true;
+        walking = true; 
       }
       if (xAddRot < 0) {
         if (deg < 0) {
-          newMeshes[0].rotation.y = ( position + (Math.PI + deg));   //  permet  d affiner  un  peu  le  chaamp  marche en avant  surtout  si vitesse 2
-          newMeshes[0].position.z += (yAddRot/2000)*actualSpeed;
-          newMeshes[0].position.x +=  (xAddRot/2000)*actualSpeed;
+          newMeshes[0].rotation.y = position -deg  //  permet  d affiner  un  peu  le  chaamp  marche en avant  surtout  si vitesse 2
+          newMeshes[0].position.z -= (yAddRot/1000)*actualSpeed;
+          newMeshes[0].position.x +=  (xAddRot/1000)*actualSpeed;
         }
-      keydown = true;
-      walking = true
+        keydown = true;
+        walking = true
       }
       if(inputMap["Q"] ||inputMap["q"] ){
         picking = true;
@@ -444,8 +434,19 @@ textblock.color = "yellow";
       }
     })     // fin de BEFORE OBSERVABLE
 //////////////////////////////////////////////////////////////////// LOGIQUE DE JEU //////////////////////////////////////
-    // scene.collisionsEnabled = true;
-    // scene.gravity = new Vector3(0, -0.9, 0);
+scene.gravity = new Vector3(0, -0.9, 0);
+
+// Enable Collisions
+scene.collisionsEnabled = true;
+
+//Then apply collisions and gravity to the active camera
+camera.checkCollisions = true;
+camera.applyGravity = true;
+
+//finally, say which mesh will be collisionable
+ground.checkCollisions = true;
+boxTresor.checkCollisions = true;
+
 //////////////////////////////////////////////////////////////////// TERRAIN //////////////////////////////////////
     const ground1 =  GroundBuilder.CreateGround("ground", {width: 10, height: 10}, scene);
     ground1.material =  groundMaterial;
@@ -463,7 +464,7 @@ textblock.color = "yellow";
   const length = 20;
   rayHelper.attachToMesh(dude, localMeshDirection, localMeshOrigin, length);
 
-  rayHelper.show(scene, new Color3(255,0,0));
+  //rayHelper.show(scene, new Color3(255,0,0));
 
 
   //scene.registerBeforeRender(function() {
@@ -472,15 +473,12 @@ textblock.color = "yellow";
     instance.position.x = 20 - Math.random() * 40;
     instance.position.y = 1 + Math.random() * 10;
     instance.position.z = 20 - Math.random() * 40;
-  //  instance.physicsImpostor = new PhysicsImpostor(box , PhysicsImpostor.BoxImpostor, { mass: 0.5, friction: 0.0, restitution: 0.3 }, scene);
   //   instance.alwaysSelectAsActiveMesh = true;
   }
   //})
 
 
  })    // finsceneLoader
-
-
 
 
   // Register click event on box mesh
@@ -492,9 +490,7 @@ textblock.color = "yellow";
         babylonLink.current.click()
       }
     )
-  );
-  
-
+  ); 
 }
 
 /**
@@ -508,11 +504,13 @@ const onRender = scene => {
   }
 }
 
-export default () => {
+
+export default   () => {
   babylonLink = useRef(null);
+
   return (
     <>
-      <BabylonScene antialias onSceneReady={onSceneReady} onRender={onRender} id='render-canvas' />
+       <BabylonScene antialias onSceneReady={onSceneReady} onRender={onRender} id='render-canvas' /> 
       <a ref={babylonLink} target="_blank" rel="noopener noreferrer" href="https://www.babylonjs.com/"> </a>
     </>
   )
