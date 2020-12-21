@@ -2,9 +2,9 @@
   position: absolute;
   top: 0;
   left: 0;
-  padding: 25vh 0 0 10%;
-  width: 25%;
-  min-width: 200px;
+  padding: 30vh 0 0 2vh;
+  width: 50vw;
+  /* min-width: 200px; */
   pointer-events: none;
   z-index: 1; 
   color: rgb(245, 229, 91);
