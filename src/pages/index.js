@@ -3,7 +3,7 @@ import Layout from "../components/layout"
 import SEO from "../components/seo"
 import Content from "../components/content"
 import Scene from  "../components/scene"
-import LightSpeed from 'react-reveal'
+
 
 const IndexPage = (scene) => {
 
