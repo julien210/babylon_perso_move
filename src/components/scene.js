@@ -158,10 +158,12 @@ scene.onBeforeCameraRenderObservable.add(()=>{
   camera.setTarget(target.position)
 })
 
-function perteCamera() {
-setTimeout(function(){  camera.dispose();
-                        assetsManager1.load()  }, 5500);
-}
+ function perteCamera() {
+// setTimeout(function(){  camera.dispose();
+//                         assetsManager1.load()  }, 5500);
+ setTimeout(function(){  camera.dispose();
+                         assetsManager1.load()  }, 1000);
+ }
 
 perteCamera()
 
@@ -357,14 +359,14 @@ setTimeout(
       tree.isVisible = true
     }
     //assetsManager1.load() 
-  }, 5450)
+  }, 900)
 
 
   setTimeout( 
     function activationCamera2 (){
     camera1.dispose()
     camera2.attachControl(canvas, true)   
-    }, 8000)
+    }, 2000)
 
     //BON
   ///////////////JOYSTICK
