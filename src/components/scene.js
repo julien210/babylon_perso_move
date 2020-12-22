@@ -48,6 +48,8 @@ import { Animation } from '@babylonjs/core/Animations/animation'
 import { Easing } from '@babylonjs/core/Animations/easing'
 import {Curve3 } from '@babylonjs/core'
 import {TransformNode } from '@babylonjs/core'
+
+//import {Scene} from '@babylonjs/core'  pour  FOG_MODE
 /////////////////////////////////////////////// FIN DES IMPORTS ////////////////////////////////////
 
 
@@ -55,19 +57,23 @@ import {TransformNode } from '@babylonjs/core'
 let  ground; let tree; let dude; let boxTresor; let box
 // let idleAnim ; let walkAnim; let pickAnim; let  runJumpAnim ;let inputMap ;let xAddRot; let yAddRot; 
 
-const onSceneReady = async (scene) => {
+const onSceneReady = async (scene) => {  
 const canvas = scene.getEngine().getRenderingCanvas();
-scene.autoClear = false; // Color buffer
+//scene.autoClear = false; // Color buffer
+// scene.ambientColor = new Color3(0.3, 0.3, 0.3);
+// scene.fogMode = Scene.FOGMODE_EXP;
+// scene.fogDensity = 0.01;
+//scene.fogColor = new Color3(0.9, 0.9, 0.85);
 scene.autoClearDepthAndStencil = false; // Depth and stencil, obviously
-
+scene.blockMaterialDirtyMechanism  = true
 var  camera = new FreeCamera("FreeCamera", new Vector3(0, 250, 0), scene);
 camera.attachControl(canvas, true);
 
 
-var  camera1 = new FreeCamera("FreeCamera1", new Vector3(50, 200, 0), scene);
+var  camera1 = new FreeCamera("FreeCamera1", new Vector3(50, 250, 0), scene);
 camera1.setTarget(Vector3.Zero());
 
-var camera2 = new FreeCamera("FreeCamera2", new Vector3(0, 6, 3), scene);
+var camera2 = new FollowCamera("FreeCamera2", new Vector3(0, 6, 1), scene);
 // var camera2 = new ArcRotateCamera("Camera", 0, 0, 0, new Vector3(0, 1, -2), scene);
 // camera2.setPosition(new Vector3(0, 10, -1));
 //var camera2 = new FollowCamera("FollowCam", new Vector3(0, 6, 4), scene);
@@ -79,9 +85,10 @@ var camera2 = new FreeCamera("FreeCamera2", new Vector3(0, 6, 3), scene);
 
 
 var light = new HemisphericLight("hemiLight", new Vector3(-5, -10, -15), scene);
+light.diffuseColor = new Color3(1, 1, 0);
 light.intensity = 0.6
 var light1 = new DirectionalLight("DirectionalLight", new Vector3(5, -20, 0), scene);
-light1.intensity = 0.4;
+light1.intensity = 0.5;
     
 // var sphere= MeshBuilder.CreateSphere("sfera",{diameter:1,segments:12},scene);    
 // sphere.position.y=0.5;
@@ -147,15 +154,16 @@ scene.onBeforeCameraRenderObservable.add(()=>{
 })
 
 function perteCamera() {
-setTimeout(function(){ camera.dispose(); }, 5500);
+setTimeout(function(){  camera.dispose();
+                        assetsManager1.load()  }, 5500);
 }
 
 perteCamera()
 
  
  var yellowMat = new StandardMaterial("green", scene);
- yellowMat.diffuseColor = new Color3(0.9, 1, 0);
- yellowMat.freeze()
+ yellowMat.diffuseColor = new Color3(1, 1, 0);
+ //yellowMat.freeze()
 
  const matCV = new StandardMaterial("mat", scene);
  const texture = new Texture("https://cdn.onlinewebfonts.com/svg/img_571171.png", scene);
@@ -163,10 +171,10 @@ perteCamera()
  matCV.freeze()
 
  // Our built-in 'box' shape.
- box = MeshBuilder.CreateBox("box", {size: 1}, scene);
+ box = MeshBuilder.CreateBox("box", {size: 0.5}, scene);
  box.position.y = 0.5;
- box.material = yellowMat
- box.isVisible = false
+ box.color = new Color3(1, 1, 1)
+ box.isVisible = false   
 
  boxTresor = MeshBuilder.CreateBox("boxTres", {size: 3}, scene);  
  boxTresor.position = new Vector3(-5, 5, 10);
@@ -174,34 +182,39 @@ perteCamera()
  boxTresor.isVisible = false
 
  const  assetsManager1 = new AssetsManager(scene);
+ const  assetsManager2 = new AssetsManager(scene);
+ const  assetsManager3 = new AssetsManager(scene);
+ const  assetsManager4 = new AssetsManager(scene);
  assetsManager1.useDefaultLoadingScreen = false;
- const meshTask = assetsManager1.addMeshTask("dude", "", "https://raw.githubusercontent.com/julien210/thion/julien210-assets/", "13.babylon")
+ assetsManager2.useDefaultLoadingScreen = false;
+ assetsManager3.useDefaultLoadingScreen = false;
+ assetsManager4.useDefaultLoadingScreen = false;
+ 
+ const meshTask1 = await assetsManager1.addMeshTask("dude", "", "https://raw.githubusercontent.com/julien210/thion/julien210-assets/", "13.babylon")
+  meshTask1.onSuccess = task => {
+  dude = task.loadedMeshes[0]
+  const skeleton = task.loadedSkeletons[0];
+  skeleton.animationPropertiesOverride = new AnimationPropertiesOverride();
+  skeleton.animationPropertiesOverride.enableBlending = true;
+  skeleton.animationPropertiesOverride.blendingSpeed = 0.05;
+  skeleton.animationPropertiesOverride.loopMode = 1;
+  skeleton.needInitialSkinMatrix = false;
 
-meshTask.onSuccess = task => {
-dude = task.loadedMeshes[0]
-const skeleton = task.loadedSkeletons[0];
+  const walkRange = skeleton.getAnimationRange("walk");
+  const idleRange = skeleton.getAnimationRange("idle");
+  const runJumpRange = skeleton.getAnimationRange("runJump");
+  const fruitRange =  skeleton.getAnimationRange("fruit");
 
-skeleton.animationPropertiesOverride = new AnimationPropertiesOverride();
-skeleton.animationPropertiesOverride.enableBlending = true;
-skeleton.animationPropertiesOverride.blendingSpeed = 0.05;
-skeleton.animationPropertiesOverride.loopMode = 1;
-skeleton.needInitialSkinMatrix = false;
+  const idleAnim = scene.beginWeightedAnimation(skeleton, idleRange.from, idleRange.to, 1.0, true, 1);
+  const runJumpAnim = scene.beginWeightedAnimation(skeleton, runJumpRange.from, runJumpRange.to, 0, false, 1);
+  const walkAnim = scene.beginWeightedAnimation(skeleton, walkRange.from, walkRange.to, 0, true);
+  const pickAnim = scene.beginWeightedAnimation(skeleton, fruitRange.from, fruitRange.to, 0, true, 1);
 
-const walkRange = skeleton.getAnimationRange("walk");
-const idleRange = skeleton.getAnimationRange("idle");
-const runJumpRange = skeleton.getAnimationRange("runJump");
-const fruitRange =  skeleton.getAnimationRange("fruit");
+  dude.position  =  new Vector3(0, 4, 0);
+  dude.scaling = new Vector3(.1, .1, .1);  
 
-const idleAnim = scene.beginWeightedAnimation(skeleton, idleRange.from, idleRange.to, 1.0, true, 1);
-const runJumpAnim = scene.beginWeightedAnimation(skeleton, runJumpRange.from, runJumpRange.to, 0, false, 1);
-const walkAnim = scene.beginWeightedAnimation(skeleton, walkRange.from, walkRange.to, 0, true);
-const pickAnim = scene.beginWeightedAnimation(skeleton, fruitRange.from, fruitRange.to, 0, true, 1);
-
-dude.position  =  new Vector3(0, 4, 0);
-dude.scaling = new Vector3(.1, .1, .1);  
-
-shadowGenerator.addShadowCaster(dude);
-shadowGenerator.useExponentialShadowMap = true;
+  shadowGenerator.addShadowCaster(dude);
+  shadowGenerator.useExponentialShadowMap = true;
 
 scene.onBeforeRenderObservable.add(()=>{
 
@@ -212,18 +225,16 @@ scene.onBeforeRenderObservable.add(()=>{
   ray = Ray.Transform(ray, worldInverse);
   let pickInfoDude = ground.intersects(ray);
     if (pickInfoDude.hit) {
-        dude.position.y = pickInfoDude.pickedPoint.y + 0.01;
+        dude.position.y = pickInfoDude.pickedPoint.y + 0.05;
     };
-  
-
+    
   const distanceDudeBoxTresor = Math.floor((Math.sqrt(Math.pow((dude.position.z - boxTresor.position.z), 2)+Math.pow((dude.position.z - boxTresor.position.z ), 2)))).toString()
   textblock.text = "Plus que "+distanceDudeBoxTresor +" metres"
   panel.addControl(textblock);
 
   if(dude){
     panel.removeControl(loadingAssets)
-    // camera2.setPosition(new Vector3(0, 6, 2));  si  ArcRotateCamera
-    camera2.setTarget(dude.position);
+  //  camera2.setPosition(new Vector3(0, 6, 2))
     camera2.lockedTarget = dude
   }
 
@@ -325,9 +336,11 @@ setTimeout(
 
   for (let index = 0; index < 50 - 1; index++) {
     let  instance = box.createInstance("box" + index);
+  
       instance.position.x = 20 - Math.random() * 40;
       instance.position.y = 1 + Math.random() * 10;
       instance.position.z = 20 - Math.random() * 40;
+      instance.color =  new Color3(Math.random(), Math.random(), Math.random())
   }
   
   const spriteManagerTrees = new SpriteManager("treesManager", "	https://playground.babylonjs.com/textures/palm.png", 100, {width:512, height: 1024}, scene);
@@ -338,7 +351,7 @@ setTimeout(
       tree.position.y = 4
       tree.isVisible = true
     }
-    assetsManager1.load()
+    //assetsManager1.load() 
   }, 5450)
 
 
@@ -482,6 +495,71 @@ setTimeout(
   redirectionFin.text = "Gagné...Vous allez être redirigé !";
 
   ///////////////////// fin joystick
+  const mauveMaterial = new StandardMaterial("mauve", scene)
+  mauveMaterial.emissiveColor = new Color3(1, 0, 1);
+ // mauveMaterial.freeze()
+  const meshTask2 = await assetsManager2.addMeshTask("github", "", "https://raw.githubusercontent.com/creationspirit/my-website/master/static/", "github.babylon")
+    meshTask2.onSuccess = task => {
+      let github = task.loadedMeshes[0]
+      github.position.y = 6
+      github.position.x = -4
+      github.position.z = -8
+      github.rotation.y = Math.PI
+      github.actionManager = new ActionManager(scene);
+      github.actionManager.registerAction(
+        new ExecuteCodeAction(
+          ActionManager.OnPickTrigger,
+          () => {
+ 
+            window.location.replace ( "https://gtihub.com/")  
+          }
+        )
+      ); 
+    }
+   const meshTask3 = await assetsManager3.addMeshTask("lndk", "", "https://raw.githubusercontent.com/creationspirit/my-website/master/static/", "linkedin.babylon")
+    meshTask3.onSuccess = task => {
+      let linkedin = task.loadedMeshes[0]
+      linkedin.scaling = new Vector3(.5, .5, .5)
+      linkedin.position.y = 6
+      linkedin.position.x = -1
+      linkedin.position.z = -5
+      linkedin.rotation.y = Math.PI/4
+      linkedin.material = mauveMaterial
+      linkedin.actionManager = new ActionManager(scene);
+      linkedin.actionManager.registerAction(
+        new ExecuteCodeAction(
+          ActionManager.OnPickTrigger,
+          () => {
+            // console.log("poipoi")   
+            window.location.replace ( "https://linkedin.com/")  
+          }
+        )
+      ); 
+    }
+    // const meshTask4 = assetsManager4.addMeshTask("cv", "", "https://raw.githubusercontent.com/creationspirit/my-website/master/static/", "cv.babylon")
+    // meshTask4.onSuccess = task => {
+    //   let cv = task.loadedMeshes[0]
+    //   cv.position.y = 6
+    //   cv.position.x = 1
+    //   cv.position.z = -6
+    //   cv.rotation.y = -Math.PI/2
+    //   cv.actionManager = new ActionManager(scene);
+    //   cv.actionManager.registerAction(
+    //     new ExecuteCodeAction(
+    //       ActionManager.OnPickTrigger,
+    //       () => {
+    //         // console.log("poipoi")
+    //         window.location.replace ( "https://1drv.ms/p/s!AqcTpBUu_KMQgUngrlebNugmf4G0?e=4PW9zS")  
+    //       }
+    //     )
+    //   ); 
+    // }
+  
+    assetsManager3.load()
+    assetsManager2.load()
+    // assetsManager4.load()
+
+  
 }
 
 const onRender = scene => {
