@@ -66,7 +66,7 @@ const canvas = scene.getEngine().getRenderingCanvas();
 // scene.fogMode = Scene.FOGMODE_EXP;
 // scene.fogDensity = 0.01;
 //scene.fogColor = new Color3(0.9, 0.9, 0.85);
-
+scene.clearColor = new Color3(0.22, 0.27, 0.67);
 scene.autoClearDepthAndStencil = false; // Depth and stencil, obviously
 scene.blockMaterialDirtyMechanism  = true
 SceneLoader.ShowLoadingScreen = false;
