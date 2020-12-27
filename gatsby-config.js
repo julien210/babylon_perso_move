@@ -1,9 +1,14 @@
+require('dotenv').config({
+  path: `.env.${process.env.NODE_ENV}`,
+})
+
+
 module.exports = {
   pathPrefix: "/gatsby-babylonjs-starter",
   siteMetadata: {
     title: `Gatsby Babylon Starter`,
     description: `Kick off your next, great Gatsby-Babylon project with this starter.`,
-    author: `Andrija Perusic, https://andrijaperusic.com`,
+    author: `Andrija Perusic, https://red.com`,
   },
   plugins: [
     `gatsby-plugin-react-helmet`,

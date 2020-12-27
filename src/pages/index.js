@@ -7,7 +7,6 @@ import Scene from  "../components/scene"
 
 const IndexPage = (scene) => {
 
-
   return(
   <Layout>
     <SEO title="Home"/>

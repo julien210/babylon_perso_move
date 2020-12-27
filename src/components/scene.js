@@ -51,7 +51,10 @@ import {TransformNode } from '@babylonjs/core'
 
 //import {Scene} from '@babylonjs/core'  pour  FOG_MODE*
 import { Tools } from '@babylonjs/core'
-//import { cv } from './externals/cv'
+
+import {Rectangle } from '@babylonjs/gui/2D/controls/rectangle'
+import { navigate } from "gatsby"
+
 /////////////////////////////////////////////// FIN DES IMPORTS ////////////////////////////////////
 
 
@@ -66,7 +69,7 @@ const canvas = scene.getEngine().getRenderingCanvas();
 // scene.fogMode = Scene.FOGMODE_EXP;
 // scene.fogDensity = 0.01;
 //scene.fogColor = new Color3(0.9, 0.9, 0.85);
-scene.clearColor = new Color3(0.22, 0.27, 0.67);
+//scene.clearColor = new Color3(0.22, 0.27, 0.67);
 scene.autoClearDepthAndStencil = false; // Depth and stencil, obviously
 scene.blockMaterialDirtyMechanism  = true
 SceneLoader.ShowLoadingScreen = false;
@@ -78,16 +81,12 @@ camera.attachControl(canvas, true);
 var  camera1 = new FreeCamera("FreeCamera1", new Vector3(50, 250, 0), scene);
 camera1.setTarget(Vector3.Zero());
 
-var camera2 = new FollowCamera("FreeCamera2", new Vector3(0, 6, 1), scene);
-// var camera2 = new ArcRotateCamera("Camera", 0, 0, 0, new Vector3(0, 1, -2), scene);
-// camera2.setPosition(new Vector3(0, 10, -1));
-//var camera2 = new FollowCamera("FollowCam", new Vector3(0, 6, 4), scene);
-//The goal distance of camera from target
-//camera2.radius = 10;
-//camera2.heightOffset = 10;
-//camera2.rotationOffset = 0;
-	
 
+var camera2 = new ArcRotateCamera("Camera", 0, Math.PI/2.5, 2,  new Vector3.Zero(),   scene);
+//camera2.upperBetaLimit = camera2.beta;
+camera2.lowerBetaLimit = camera2.beta;  
+camera2.setPosition(new Vector3(0, 6, 2))
+camera2.inputs.clear();  //  on  disable  tous  les  actions de c amera  comme ca  joystick  est l e  maitre p our  le  personnage
 
 var light = new HemisphericLight("hemiLight", new Vector3(-5, -10, -15), scene);
 light.diffuseColor = new Color3(1, 1, 0);
@@ -143,7 +142,7 @@ const height = 200;
 const options = {width: width, height: height, subdivisions: subdivisions, minHeight: 0 ,  maxHeight: 8};
 const ground = MeshBuilder.CreateGroundFromHeightMap("ground", "https://raw.githubusercontent.com/julien210/thion/julien210-assets/fredpaq.jpg", options, scene);
 ground.rotation.y  = -Math.PI/3 
-//ground.position.y  = -50 
+
 const groundMaterial = new StandardMaterial("ground", scene);
 groundMaterial.emissiveColor = new Color3.FromHexString("#FFFFCC")
 groundMaterial.diffuseTexture = new Texture("https://raw.githubusercontent.com/julien210/thion/julien210-assets/fredpaq.jpg", scene);
@@ -159,15 +158,13 @@ scene.onBeforeCameraRenderObservable.add(()=>{
 })
 
  function perteCamera() {
-// setTimeout(function(){  camera.dispose();
-//                         assetsManager1.load()  }, 5500);
- setTimeout(function(){  camera.dispose();
-                         assetsManager1.load()  }, 1000);
- }
-
+setTimeout(function(){  camera.dispose();
+                        assetsManager1.load()  }, 5500);
+//  setTimeout(function(){  camera.dispose();
+//                          assetsManager1.load()  }, 5500);
+}
 perteCamera()
 
- 
  var yellowMat = new StandardMaterial("green", scene);
  yellowMat.diffuseColor = new Color3(1, 1, 0);
  //yellowMat.freeze()
@@ -175,7 +172,7 @@ perteCamera()
  const matCV = new StandardMaterial("mat", scene);
  const texture = new Texture("https://cdn.onlinewebfonts.com/svg/img_571171.png", scene);
  matCV.diffuseTexture = texture;
- matCV.freeze()
+ //matCV.freeze()
 
  // Our built-in 'box' shape.
  box = MeshBuilder.CreateBox("box", {size: 0.5}, scene);
@@ -237,10 +234,10 @@ scene.onBeforeRenderObservable.add(()=>{
     
   const distanceDudeBoxTresor = Math.floor((Math.sqrt(Math.pow((dude.position.z - boxTresor.position.z), 2)+Math.pow((dude.position.z - boxTresor.position.z ), 2)))).toString()
   textblock.text = "Plus que "+distanceDudeBoxTresor +" metres"
-  panel.addControl(textblock);
-
+  panelTop.addControl(textblock);
+  
   if(dude){
-    panel.removeControl(loadingAssets)
+    panelTop.removeControl(loadingAssets)
   //  camera2.setPosition(new Vector3(0, 6, 2))
     camera2.lockedTarget = dude
   }
@@ -359,14 +356,14 @@ setTimeout(
       tree.isVisible = true
     }
     //assetsManager1.load() 
-  }, 900)
+  }, 5400)
 
 
-  setTimeout( 
-    function activationCamera2 (){
-    camera1.dispose()
-    camera2.attachControl(canvas, true)   
-    }, 2000)
+setTimeout( 
+  function activationCamera2 (){
+  camera1.dispose()
+  camera2.attachControl(canvas, true)   
+}, 8000)
 
     //BON
   ///////////////JOYSTICK
@@ -386,26 +383,44 @@ setTimeout(
     let bottomJoystickOffset = -20;
     let translateTransform;    
 
-    const panel = new StackPanel();
-    panel.verticalAlignment =  Control.VERTICAL_ALIGNMENT_TOP
-    panel.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER
-    adt.addControl(panel);
+    const panelTop = new StackPanel();
+    panelTop.verticalAlignment =  Control.VERTICAL_ALIGNMENT_TOP
+    panelTop.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER
+    adt.addControl(panelTop);
+
+    const loginRight = new Rectangle();
+    loginRight.width = "110px";
+    loginRight.height = "110px";
+    loginRight.thickness = 0;
+    loginRight.verticalAlignment =  Control.VERTICAL_ALIGNMENT_CENTER
+    loginRight.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;  
+    adt.addControl(loginRight);
   
     //const image = new Image('imageBabylonjs', "https://d33wubrfki0l68.cloudfront.net/3c934afefb2da5f35adefb52716ba9cc9ffa37ab/061c6/img/layout/logo-babylonjs-v3.svg");
-    const  buttonLogin = Button.CreateImageOnlyButton('buttonLoginBabylonjs', "https://www.flaticon.com/svg/static/icons/svg/1371/1371211.svg");
-    buttonLogin.width = "50px";
-    buttonLogin.height = "50px";
-    buttonLogin.top = "100px"
+    const  buttonLogin = Button.CreateImageOnlyButton('buttonLoginBabylonjs', "https://raw.githubusercontent.com/julien210/thion/julien210-assets/login1.png");
+    buttonLogin.width = "80px";
+    buttonLogin.height = "80px";
     buttonLogin.alpha = 0.5;
     buttonLogin.color = "yellow";
     buttonLogin.isHighlighted = true;
-    buttonLogin.shadowBlur = 11;
+    buttonLogin.shadowBlur = 11;  
     buttonLogin.border = "none"
-  
-    adt.addControl(buttonLogin)
+    loginRight.addControl(buttonLogin)
+    
     buttonLogin.onPointerDownObservable.add(function() {
-      window.location.replace ( "http://doc.babylonjs.com/")
+     // window.location.replace ( "http://doc.babylonjs.com/")
+     navigate( '/account/')
     });
+
+    const login = new TextBlock();
+    login.top = "30px"
+    login.height = "20px";
+    login.color = "yellow";     
+    login.text = "Login";
+    login.alpha = 0.8;
+    
+    loginRight.addControl(login)
+
   
   let rightThumbContainer = makeThumbArea("rightThumb", 2, "yellow", null);
       rightThumbContainer.height = "160px";
@@ -471,14 +486,14 @@ setTimeout(
   buttonCamera.paddingTop = "10px"
   buttonCamera.alpha = 0.5;
   buttonCamera.isHighlighted = true;
-  buttonCamera.shadowBlur = 11;
+  buttonCamera.shadowBlur = 0;
   buttonCamera.border = "none"
-  panel.addControl(buttonCamera)
+  panelTop.addControl(buttonCamera)
 
   
   buttonCamera.onPointerDownObservable.add(function() {
   // buttonCamera.onPointerClickObservable.add(function(){
-  scene.activeCamera = (scene.activeCamera === camera ? camera2 : camera);
+  scene.activeCamera = (scene.activeCamera === camera1 ? camera2 : camera1);
   });
   
   const textblock = new TextBlock("textblock" );
@@ -493,7 +508,7 @@ setTimeout(
   loadingAssets.color = "yellow";     
   loadingAssets.text = "Loading...";
   loadingAssets.alpha = 0.5;
-  panel.addControl(loadingAssets)
+  panelTop.addControl(loadingAssets)
 
   const redirectionFin = new TextBlock("redirectionFin" );
   redirectionFin.width = 1;
@@ -591,6 +606,9 @@ setTimeout(
   //   cv.rotation.y = Math.PI/2 
   // }, undefined, undefined, ".babylon")
 
+  scene.registerBeforeRender(function () {
+		camera2.rotation.x = 0;
+	})
 
 }  // FIN DE READY 
 
@@ -608,6 +626,10 @@ const onRender = scene => {
   // }
 }
 
+
+
+//const { isAuthenticated, user, loginWithRedirect, logout } = useAuth0();
+// const pathname = typeof window !== 'undefined' && window.location.pathname;
 
 
 export default   () => {
