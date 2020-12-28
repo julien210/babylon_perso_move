@@ -524,7 +524,7 @@ setTimeout(
     meshTask2.onSuccess = task => {
       let github = task.loadedMeshes[0]
       github.position.y = 6
-      github.position.x = -4
+      github.position.x = -3
       github.position.z = -8
       github.rotation.y = Math.PI
       github.actionManager = new ActionManager(scene);
@@ -541,10 +541,10 @@ setTimeout(
    const meshTask3 = await assetsManager3.addMeshTask("lndk", "", "https://raw.githubusercontent.com/creationspirit/my-website/master/static/", "linkedin.babylon")
     meshTask3.onSuccess = task => {
       let linkedin = task.loadedMeshes[0]
-      linkedin.scaling = new Vector3(.5, .5, .5)
-      linkedin.position.y = 6
-      linkedin.position.x = -1
-      linkedin.position.z = -5
+      linkedin.scaling = new Vector3(.4, .4, .4)
+      linkedin.position.y = 5
+      linkedin.position.x = 0
+      linkedin.position.z = -8
       linkedin.rotation.y = Math.PI/4
       linkedin.material = mauveMaterial
       linkedin.actionManager = new ActionManager(scene);

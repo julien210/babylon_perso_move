@@ -1,0 +1,33 @@
+.content {
+  position: absolute;
+  line-height: 90%;
+  padding: 25vh 0 0 5vw;
+  width: 45vw;
+  /* min-width: 200px; */
+  pointer-events: none;
+  z-index: 1; 
+  color: rgb(228, 253, 0);  
+}
+.contentText{
+  position: absolute;
+  z-index: 1; 
+  color: rgb(93, 165, 248);
+  padding: 6vh 0 0 5vw;  
+  font-size: 0.8rem;
+  
+}
+
+.contentb {
+  position: absolute;
+  font-size: 0.8rem;
+  font-weight: 400;
+  padding: 30vh 0 0 5vw;
+  z-index: 2; 
+  color: rgb(228, 253, 0);  
+}
+
+.buttonClass {
+  background-color: transparent;
+  color: rgba(228, 253, 0, 0.65);
+
+}
