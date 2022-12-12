@@ -194,7 +194,8 @@ perteCamera()
  assetsManager3.useDefaultLoadingScreen = false;
  assetsManager4.useDefaultLoadingScreen = false;
  
- const meshTask1 = await assetsManager1.addMeshTask("dude", "", "https://raw.githubusercontent.com/julien210/thion/julien210-assets/", "13.babylon")
+ //const meshTask1 = await assetsManager1.addMeshTask("dude", "", "https://raw.githubusercontent.com/julien210/thion/julien210-assets/", "13.babylon")
+   const meshTask1 = await assetsManager1.addMeshTask("dude", "", "https://raw.githubusercontent.com/julien210/thion/julien210-assets/", "scene.babylon")
   meshTask1.onSuccess = task => {
   dude = task.loadedMeshes[0]
   const skeleton = task.loadedSkeletons[0];
